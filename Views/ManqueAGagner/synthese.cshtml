@@ -1,0 +1,219 @@
+﻿@* @model IEnumerable<SYSGES_MAGs.Models.ModelsDto.BkmvtiSyntheseDto> *@
+@model SYSGES_MAGs.Models.ModelsDto.TypeMagWithSyntheseDto
+@{
+    int index = 1;
+    var totalMontant = Model.SyntheseBkmvtis.Sum(x => x.MontantTotal);
+} 
+
+<style>
+    /* Ensure DataTables cloned header and body tables align */
+    .dataTables_scrollHead table,
+    .dataTables_scrollBody table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        border-collapse: collapse;
+    }
+    .dataTables_scrollHead th {
+        text-align: center !important;
+    }
+
+    .dataTables_scrollHead table thead th,
+    .dataTables_scrollBody table thead th,
+    .dataTables_scrollBody table tbody td {
+        box-sizing: border-box;
+        padding: 0.5rem 0.75rem;
+        text-align : center;
+        align-content : center;
+        vertical-align: middle;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Make sure the sizing div doesn't add extra height */
+    .dataTables_sizing { height: 0 !important; overflow: hidden !important; }
+
+</style>
+<div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+    <div>
+        <nav>
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item fw-bold"> <a href="@Url.Action("Index","ManqueAGagner")"> Gestion des MAGs </a> </li>
+                <li class="breadcrumb-item active" aria-current="page">Synthèse MAG @Model.Description</li>
+            </ol>
+        </nav>
+    </div>
+     
+
+</div>
+<div class="row">
+    @foreach (var item in Model.SyntheseBkmvtis)
+    {
+        <div class="col-lg-3 ">
+            <div class="card custom-card overflow-hidden main-content-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="flex-fill fs-13 text-muted">@item.DesignationCarte</div>
+                            <div class="fs-16 fw-medium my-1">@item.MontantTotal.ToString("N0") XAF</div>
+                            <div class="text-muted fs-13">Total clients : <span class="text-success fw-bold fs-15">@item.NombreClients<i class="fa fa-trending-up fs-16"></i></span></div>
+                        </div>
+                        <div class="avatar avatar-md bg-primary svg-white">
+                            @item.CodeCarte
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    }
+
+     
+    <div class="card border border-primary2 border-opacity-25 custom-card card-bg-primary">
+        <div class="card-body">
+            <div class="d-flex gap-2 align-items-center my-1">
+                <div class="text-fixed-white">
+                    <span class="mb-1 d-block">Total Revenue</span>
+                        <h4 class="mb-1">@totalMontant.ToString("N0") XAF</h4>
+                </div>
+                <div class="avatar avatar-lg bg-primary2-transparent svg-primary2 ms-auto shadow-sm"> <svg
+                        xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256">
+                        <path
+                            d="M230.33,141.06a24.43,24.43,0,0,0-21.24-4.23l-41.84,9.62A28,28,0,0,0,140,112H89.94a31.82,31.82,0,0,0-22.63,9.37L44.69,144H16A16,16,0,0,0,0,160v40a16,16,0,0,0,16,16H120a7.93,7.93,0,0,0,1.94-.24l64-16a6.94,6.94,0,0,0,1.19-.4L226,182.82l.44-.2a24.6,24.6,0,0,0,3.93-41.56ZM16,160H40v40H16Zm203.43,8.21-38,16.18L119,200H56V155.31l22.63-22.62A15.86,15.86,0,0,1,89.94,128H140a12,12,0,0,1,0,24H112a8,8,0,0,0,0,16h32a8.32,8.32,0,0,0,1.79-.2l67-15.41.31-.08a8.6,8.6,0,0,1,6.3,15.9ZM164,96a36,36,0,0,0,5.9-.48,36,36,0,1,0,28.22-47A36,36,0,1,0,164,96Zm60-12a20,20,0,1,1-20-20A20,20,0,0,1,224,84ZM164,40a20,20,0,0,1,19.25,14.61,36,36,0,0,0-15,24.93A20.42,20.42,0,0,1,164,80a20,20,0,0,1,0-40Z">
+                        </path>
+                    </svg> 
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-xl-12 ">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Synthèse MAG @Model.Description</div>
+            </div>
+            
+            <div class="card-body">
+                <div id="scroll-vertical_wrapper"
+                     class="dataTables_wrapper dt-bootstrap5 no-footer">
+                     
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="dataTables_scroll">
+                                <div class="dataTables_scrollHead" >
+                                    <div class="dataTables_scrollHeadInner" >
+                                        <table class="table table-bordered text-nowrap   dataTable no-footer"
+                                               style="margin-left: 0px; ">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">P.No</th>
+                                                    <th class="text-center">Type de carte</th>
+                                                    <th class="text-center">Désignation</th>
+                                                    <th class="text-center">Volumétrie clients</th>
+                                                    <th class="text-center">MAG récupérés</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="dataTables_scrollBody"
+                                     style="
+                                            position: relative;
+                                            overflow: auto; 
+                                            max-height: 520px;
+                                          ">
+                                    <table id="scroll-vertical"
+                                           class="table table-bordered text-nowrap  dataTable no-footer"
+                                           aria-describedby="scroll-vertical_info" >
+                                        <thead>
+                                            <tr style="height: 0px">
+                                                <th class="sorting sorting_asc "
+                                                    aria-controls="scroll-vertical" >
+                                                    <div class="dataTables_sizing "
+                                                         style="height: 0px; overflow: hidden">
+                                                        P.No
+                                                    </div>
+                                                </th>
+                                                <th class="sorting text-center"
+                                                    aria-controls="scroll-vertical" 
+                                                    aria-label="Position: activate to sort column ascending">
+                                                    <div class="dataTables_sizing"
+                                                         style="height: 0px; overflow: hidden">
+                                                        Type de carte
+                                                    </div>
+                                                </th>
+                                                <th class="sorting text-center"
+                                                    aria-controls="scroll-vertical" 
+                                                    aria-label="Position: activate to sort column ascending">
+                                                    <div class="dataTables_sizing"
+                                                         style="height: 0px; overflow: hidden">
+                                                        Désignation
+                                                    </div>
+                                                </th>
+
+                                                <th class="sorting text-center"
+                                                    aria-controls="scroll-vertical" 
+                                                    aria-label="Office: activate to sort column ascending">
+                                                    <div class="dataTables_sizing"
+                                                         style="height: 0px; overflow: hidden">
+                                                        Volumétrie clients
+                                                    </div>
+                                                </th>
+                                                <th class="sorting text-center"
+                                                    aria-controls="scroll-vertical" 
+                                                    aria-label="Age: activate to sort column ascending">
+                                                    <div class="dataTables_sizing"
+                                                         style="height: 0px; overflow: hidden">
+                                                        MAG récupérés
+                                                    </div>
+                                                </th>
+                                                 
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach(var synthese in Model.SyntheseBkmvtis)
+                                            {
+                                                <tr class="odd text-center">
+                                                    <td class="sorting_1">@index</td>
+                                                    <td>@synthese.CodeCarte</td>
+                                                    <td>@synthese.DesignationCarte</td>
+                                                    <td>@synthese.NombreClients</td>
+                                                    <td>@synthese.MontantTotal.ToString("N0")</td>
+                                                </tr>
+                                                index++;
+                                            }
+                                            
+                                             
+                                             
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row d-flex align-item-center justify-content-between">
+                        <div class="col-6">
+                            <div class="dataTables_info"
+                                 id="scroll-vertical_info"
+                                 role="status"
+                                 aria-live="polite">
+                                Showing 1 to 57 of 57 entries
+                            </div>
+                        </div>
+                        <div class="col-6" >
+                            <div class="dataTables_info d-flex align-items-end justify-content-end"
+                                 id="scroll-vertical_info"
+                                 role="status"
+                                 aria-live="polite" >
+                                <strong class="me-2">Montant total : </strong> <span class="fw-bolder me-2">@totalMontant.ToString("N0")</span> XAF
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

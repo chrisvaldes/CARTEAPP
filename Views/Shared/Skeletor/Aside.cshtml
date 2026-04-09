@@ -1,0 +1,268 @@
+﻿ 
+
+ <!-- Start::main-sidebar-header -->
+<div class="main-sidebar-header">
+    <a href="index.html" class="header-logo">   
+        <img src="~/images/brand-logos/logo-desktop.jpg" style="width:100%; height : 100%" alt="logo" class="desktop-logo">
+        <img src="~/images/brand-logos/logo-desktop.jpg" style="width:100%; height : 100%" alt="logo" class="desktop-dark">
+        <img src="~/images/brand-logos/logo.jpg" alt="logo" class="toggle-logo">
+        <img src="~/images/brand-logos/logo.jpg" alt="logo" class="toggle-white">
+        <img src="~/images/brand-logos/logo-desktop.jpg" style="width:100%; height : 100%" alt="logo" class="desktop-white">
+    </a>
+</div>
+<!-- End::main-sidebar-header --> <!-- Start::main-sidebar -->
+<div class="main-sidebar simplebar-scrollable-y" id="sidebar-scroll" data-simplebar="init">
+    <div class="simplebar-wrapper" style="margin: -8px 0px -80px;">
+        <div class="simplebar-height-auto-observer-wrapper">
+            <div class="simplebar-height-auto-observer"></div>
+        </div>
+        <div class="simplebar-mask">
+            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                     aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
+                    <div class="simplebar-content" style="padding: 8px 0px 80px;">
+                        <!-- Start::nav -->
+                        <nav class="main-menu-container nav nav-pills flex-column sub-open open active">
+                            <div class="slide-left active d-none" id="slide-left">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
+                                     viewBox="0 0 24 24">
+                                    <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <ul class="main-menu"
+                                style="display: block; margin-left: 0px; margin-right: 0px; margin-top : 1rem">
+                                <!-- Start::slide__category -->
+                                <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des Utilisateurs</span></li>
+                                <!-- End::slide__category --> <!-- Start::slide -->
+                                <!-- Single link: Liste des utilisateurs -->
+                                <li class="slide active">
+                                    <a href="@Url.Action("Index", "Profil")"
+                                       data-route="@Url.Action("Index", "Profil")"
+                                       class="side-menu__item">Liste des utilisateurs</a>
+                                </li> <!-- End::slide --> <!-- Start::slide__category -->
+                                <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des MAGs</span></li>
+                                <li class="slide">
+                                    <a href="@Url.Action("Index", "ManqueAGagner")"
+                                       data-route="@Url.Action("Index", "ManqueAGagner")"
+                                       class="side-menu__item">Traiter MAG</a>
+                                </li>
+                                <li class="slide">
+                                    <a href="add-products.html"
+                                       class="side-menu__item">Client Carte & package aligner</a>
+                                </li>
+                                <li class="slide">
+                                    <a href="cart.html"
+                                       class="side-menu__item">Client Carte & package non aligner</a>
+                                </li>
+                                <li class="slide">
+                                    <a href="full-calendar.html"
+                                       class="side-menu__item">Client Sans Package</a>
+                                </li>
+
+                                <li class="slide">
+                                    <a href="full-calendar.html"
+                                       class="side-menu__item">Plusieurs cartes</a>
+                                </li>
+
+                                <li class="slide__category"><span class="category-name fw-bolder text-black">Contentieux & Compte fermées</span></li>
+                                <li class="slide">
+                                    <a href="full-calendar.html"
+                                       class="side-menu__item">Clients en ctx & cpt fermés</a>
+                                </li>
+                                @* <li class="slide has-sub">
+                                    <a href="javascript:void(0);"
+                                       class="side-menu__item">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="w-6 h-6 side-menu__icon" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z">
+                                            </path>
+                                        </svg> <span class="side-menu__label">Gestion des MAGs</span> <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                    </a>
+
+                                    <ul class="slide-menu child1"
+                                        style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.333px, 832px, 0px);"
+                                        data-popper-placement="top" data-popper-reference-hidden=""
+                                        data-popper-escaped=""> 
+                                        <li class="slide">
+                                            <a href="@Url.Action("Index", "ManqueAGagner")"
+                                               data-route="@Url.Action("Index", "ManqueAGagner")"
+                                               class="side-menu__item">Traiter MAG</a>
+                                        </li>
+                                        <li class="slide has-sub">
+                                            <a href="javascript:void(0);"
+                                               class="side-menu__item">
+                                                Avec package <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                            </a>
+                                            <ul class="slide-menu child2">
+                                                <li class="slide">
+                                                    <a href="add-products.html"
+                                                       class="side-menu__item">Gamme & carte aligner</a>
+                                                </li>
+                                                <li class="slide">
+                                                    <a href="cart.html"
+                                                       class="side-menu__item">Gamme & carte non aligner</a>
+                                                </li> 
+                                                
+                                            </ul>
+                                        </li>
+                                        <li class="slide">
+                                            <a href="full-calendar.html"
+                                               class="side-menu__item">Sans Package</a>
+                                        </li>
+                                         
+                                        <li class="slide">
+                                            <a href="full-calendar.html"
+                                               class="side-menu__item">Plusieurs cartes</a>
+                                        </li>
+                                         
+                                         
+                                    </ul>
+                                </li>  
+                                  *@
+                                @* <li class="slide__category"><span class="category-name">Pages</span></li>
+                                <!-- End::slide__category --> <!-- Start::slide -->
+                                <li class="slide has-sub">
+                                    <a href="javascript:void(0);"
+                                       class="side-menu__item">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="w-6 h-6 side-menu__icon" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z">
+                                            </path>
+                                        </svg> <span class="side-menu__label">Authentication</span> <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                    </a>
+                                    <ul class="slide-menu child1"
+                                        style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.333px, 972px, 0px);"
+                                        data-popper-placement="top" data-popper-reference-hidden=""
+                                        data-popper-escaped="">
+                                        <li class="slide side-menu__label1">
+                                            <a href="javascript:void(0)">Authentication</a>
+                                        </li>
+                                        <li class="slide">
+                                            <a href="coming-soon.html"
+                                               class="side-menu__item">Coming Soon</a>
+                                        </li>
+                                         
+                                    </ul>
+                                </li> <!-- End::slide --> <!-- Start::slide -->
+                                <li class="slide has-sub">
+                                    <a href="javascript:void(0);"
+                                       class="side-menu__item">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="w-6 h-6 side-menu__icon" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z">
+                                            </path>
+                                        </svg> <span class="side-menu__label">Error</span> <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                    </a>
+                                    <ul class="slide-menu child1"
+                                        style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.333px, 1022px, 0px);"
+                                        data-popper-placement="top" data-popper-reference-hidden=""
+                                        data-popper-escaped="">
+                                        <li class="slide side-menu__label1">
+                                            <a href="javascript:void(0)">Error</a>
+                                        </li>
+                                        <li class="slide">
+                                            <a href="401-error.html"
+                                               class="side-menu__item">401 - Error</a>
+                                        </li>
+                                        <li class="slide">
+                                            <a href="404-error.html"
+                                               class="side-menu__item">404 - Error</a>
+                                        </li>
+                                        <li class="slide">
+                                            <a href="500-error.html"
+                                               class="side-menu__item">500 - Error</a>
+                                        </li>
+                                    </ul>
+                                </li> <!-- End::slide --> <!-- Start::slide -->
+                                <li class="slide has-sub">
+                                    <a href="javascript:void(0);"
+                                       class="side-menu__item">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="w-6 h-6 side-menu__icon" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75">
+                                            </path>
+                                        </svg> <span class="side-menu__label">Pages</span> <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                    </a>
+                                    <ul class="slide-menu child1 pages-ul"
+                                        style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.333px, 1072px, 0px);"
+                                        data-popper-placement="top" data-popper-reference-hidden=""
+                                        data-popper-escaped="">
+                                        <li class="slide side-menu__label1">
+                                            <a href="javascript:void(0)">Pages</a>
+                                        </li>
+                                        <li class="slide has-sub">
+                                            <a href="javascript:void(0);"
+                                               class="side-menu__item">
+                                                Blog <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                            </a>
+                                            <ul class="slide-menu child2">
+                                                <li class="slide">
+                                                    <a href="blog.html"
+                                                       class="side-menu__item">Blog</a>
+                                                </li>
+                                                <li class="slide">
+                                                    <a href="blog-details.html"
+                                                       class="side-menu__item">Blog Details</a>
+                                                </li>
+                                                <li class="slide">
+                                                    <a href="blog-create.html"
+                                                       class="side-menu__item">Create Blog</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="slide">
+                                            <a href="chat.html"
+                                               class="side-menu__item">Chat</a>
+                                        </li>
+                                        <li class="slide has-sub">
+                                            <a href="javascript:void(0);"
+                                               class="side-menu__item">
+                                                Email <i class="fa-solid fa-chevron-down side-menu__angle"></i>
+                                            </a>
+                                            <ul class="slide-menu child2">
+                                                <li class="slide">
+                                                    <a href="mail.html"
+                                                       class="side-menu__item">Mail App</a>
+                                                </li>
+                                                <li class="slide">
+                                                    <a href="mail-settings.html"
+                                                       class="side-menu__item">Mail Settings</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                         
+                                    </ul>
+                                </li> <!-- End::slide --> <!-- Start::slide__category -->
+                                  *@
+                            </ul>
+                            <div class="slide-right d-none" id="slide-right">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
+                                     viewBox="0 0 24 24">
+                                    <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </nav> <!-- End::nav -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="simplebar-placeholder" style="width: 239px; height: 1720px;"></div>
+    </div>
+    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+    </div>
+    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+        <div class="simplebar-scrollbar"
+             style="height: 28px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+    </div>
+</div> <!-- End::main-sidebar -->

@@ -1,0 +1,69 @@
+﻿ 
+ 
+@{
+    Layout = "_LayoutLogin";
+}
+
+<div class="row  authentication authentication-cover-main ">
+    <div class="col-xxl-6 col-xl-7 "  >
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-xxl-7 col-xl-9 col-lg-6 col-md-6 col-sm-8 col-12">
+                <div class="card custom-card my-auto border">
+                    <div class="authentication-cover-logo d-flex align-items-end justify-content-end">
+                        <a class="m-2">
+                            <img src="~/images/brand-logos/logo.jpg" alt="" class="authentication-brand desktop-white">
+                        </a>
+                    </div>
+                    <form id="loginForm" onsubmit="event.preventDefault(); LoginAsync(event)">
+                        <div class="card-body p-5">
+                            <p class="h5 mb-4 text-center">SYS-S<span class="text-primary">MAG</span></p>
+                            <p class="h5 mb-4 text-center">Connexion</p>
+
+                            <div class="row gy-3">
+                                <div class="col-xl-12">
+                                    <label for="signin-username" class="form-label text-default">Nom d'utilisateur</label>
+                                    <input type="text" class="form-control" name="Username" id="signin-username" placeholder="Nom d'utilisateur'">
+                                </div> <div class="col-xl-12">
+                                    <label for="signin-password" class="form-label text-default d-block">Mot de passe </label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control create-password-input" name="Password" id="signin-password" placeholder="Mot de passe">
+                                        <a href="javascript:void(0);" class="show-password-button" onclick="createpassword('signin-password',this)" id="button-addon2">
+                                            <i class="fa-solid fa-eye-slash align-middle"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid mt-4"> <button type="submit" class="btn btn-primary">Connexion</button> </div>
+
+                            <div class="btn-list text-center mt-3">
+                                <button class="btn btn-icon btn-wave btn-primary-light">
+                                    <i class="ri-facebook-line lh-1 align-center fs-17"></i>
+                                </button>
+                                <button class="btn btn-icon btn-wave btn-primary1-light">
+                                    <i class="ri-twitter-x-line lh-1 align-center fs-17"></i>
+                                </button>
+                                <button class="btn btn-icon btn-wave btn-primary2-light">
+                                    <i class="ri-instagram-line lh-1 align-center fs-17"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xxl-6 col-xl-5 col-lg-12 d-xl-block d-none px-0">
+        <div class="authentication-cover overflow-hidden">
+            <div class="authentication-cover-logo">
+                <a>
+                    <img src="~/images/brand-logos/sgcam.png" alt=""
+                         class="authentication-brand desktop-white">
+                </a>
+            </div>
+
+
+        </div>
+    </div>
+</div> <!-- Bootstrap JS -->
+@await Html.PartialAsync("~/Views/Shared/Components/_Toast.cshtml")
+

@@ -1,0 +1,230 @@
+﻿@model IEnumerable<SYSGES_MAGs.Models.ModelsDto.ProfilDto>
+
+@{
+    var index = 1;
+}
+
+<div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+    <div>
+        <nav>
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item fw-bold"> <a href="javascript:void(0);"> Gestion des utilisateurs </a> </li>
+                <li class="breadcrumb-item active" aria-current="page">Liste des utilisateurs</li>
+            </ol>
+        </nav>
+    </div>
+     
+
+</div>
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-xxl-9">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between">
+                <div class="card-title"> Liste profils </div>
+                <button class="btn btn-primary open-modal-btn" id="openProfileModalBtn">
+                    <i class="fa-solid fa-plus me-1 fw-medium align-middle"></i>Nouveau utilisateur
+                </button> 
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover text-nowrap table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">P.No</th>
+                                <th scope="col">Nom & Prenom</th>
+                                <th scope="col">AG Utilisateur</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Type Profil</th>
+                                <th scope="col">Status</th> 
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(var profil in Model)
+                            {
+                                <tr>
+                                    <td> @index </td>
+                                    <td> <span class="fw-medium">@profil.Username</span> </td>
+                                    <td>@profil.Userag</td>
+                                    <td>
+                                        @profil.Email
+                                    </td>
+
+                                    <td> <span class="badge bg-primary-transparent">@profil.TypeProfile</span> </td>
+                                    <td> <span class="badge bg-warning-transparent">@profil.Status</span> </td>
+                                    <td>
+                                        <div class="btn-list">
+                                            <a class=" open-modal-btn btn  btn-icon rounded-pill btn-sm btn-secondary-light openUpdateProfileModalBtn"
+                                               aria-label="anchor"  data-id="@profil.Id"
+                                               href="javascript:void(0);"   data-bs-toggle="tooltip" data-bs-placement="top"
+                                               data-bs-title="Edit">
+                                                <i class="fa-solid fa-pencil"></i>
+                                            </a>
+                                            <a aria-label="anchor" id="alertParameter"
+                                               href="javascript:void(0);" onclick="showDeleteProfile('@profil.Id')" data-bs-toggle="tooltip" data-bs-placement="top"
+                                               data-bs-title="Delete"
+                                               class="btn  btn-icon rounded-pill btn-sm  btn-danger-light  open-modal-btn">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+   
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex align-items-center">
+                    <div>  </div>
+                    <div class="ms-auto">
+                        <nav aria-label="Page navigation" class="pagination-style-4">
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="javascript:void(0);">
+                                        Prev
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link text-primary" href="javascript:void(0);">
+                                        next
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @* Modal de creation de profil *@
+
+    <form class="modal" id="createProfileModal" onsubmit="event.preventDefault(); saveProfil(event)">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Nouveau profil</h6> <button type="button" class="btn-close cancelBtn" ></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row gy-3">
+                         
+                        <div class="col-xl-12">
+                            <label for="profil-name" class="form-label">Nom utilisateur</label>
+                            <input type="text" class="form-control" id="profil-name" name="Username" placeholder="Nom utilisateur">
+                        </div>
+                       
+                        <div class="col-xl-12">
+                            <label for="AG-utilisateur" class="form-label">AG-utilisateur</label>
+                            <input type="text" class="form-control" id="utilisateur-AG" name="Userag" placeholder="AG-utilisateur">
+                        </div>
+                        <div class="col-xl-12">
+                            <label for="email" class="form-label">Email utilisateur</label>
+                            <input type="email" class="form-control" id="email" name="Email" placeholder="Email utilisateur">
+                        </div>
+                        <div class="col-xl-12">
+                            <label for="type-profil" class="form-label">Type de profil</label>
+                            <select name="TypeProfileString" class="form-select">
+                                <option selected="" disabled>Selectionnez un type de profil</option>
+                                <option value="SUPER_ADMIN">Super Administrateur</option>
+                                <option value="ADMIN">Administrateur</option>
+                                <option value="MON_OFFICER">Monétique Officer</option>
+                                <option value="MON_MANAGER">Monétique Manager</option>
+                                <option value="COMPTABLE">Comptable</option>
+                            </select> 
+                        </div>
+                        <div class="col-xl-12">
+                            <label for="user-status" class="form-label">Statut du profil</label>
+                            <select name="Status" class="form-select">
+                                <option value="" disabled>Selectionnez un status</option>
+                                <option value="Actif">Actif</option>
+                                <option value="Inactif">Inactif</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light cancelBtn">
+                        Annuler
+                    </button>
+                    <button id="submitBtn" type="submit" class="btn btn-success">
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+</div>
+
+
+@* Modal de mofification de profil *@
+
+<form class="modal" id="updateProfileModal" onsubmit="event.preventDefault(); UpdateProfil(event)">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Mise à jour du profil</h6> <button type="button" class="btn-close cancelBtn" ></button>
+            </div>
+            <div class="modal-body">
+                <div class="row gy-3">
+
+                    <input type="text" class="form-control" id="profileId" name="Id"  style="display : none">
+
+                    <div class="col-xl-12">
+                        <label for="Username" class="form-label">Nom utilisateur</label>
+                        <input type="text" class="form-control" id="Username" name="Username" placeholder="Nom utilisateur">
+                    </div>
+
+                    <div class="col-xl-12">
+                        <label for="Userag" class="form-label">AG-utilisateur</label>
+                        <input type="text" class="form-control" id="Userag" name="Userag" placeholder="AG-utilisateur">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="Email" class="form-label">Email utilisateur</label>
+                        <input type="email" class="form-control" id="Email" name="Email" placeholder="Email utilisateur">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="TypeProfileString" class="form-label">Type de profil</label>
+                        <select name="TypeProfileString" id="TypeProfileString" class="form-select">
+                            <option selected="" disabled>Selectionnez un type de profil</option>
+                            <option value="SUPER_ADMIN">Super Administrateur</option>
+                            <option value="ADMIN">Administrateur</option>
+                            <option value="MON_OFFICER">Monétique Officer</option>
+                            <option value="MON_MANAGER">Monétique Manager</option>
+                            <option value="COMPTABLE">Comptable</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="Status" class="form-label">Statut du profil</label>
+                        <select name="Status" id="Status" class="form-select">
+                            <option value="" disabled>Selectionnez un status</option>
+                            <option value="Actif">Actif</option>
+                            <option value="Inactif">Inactif</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light cancelBtn">
+                    Annuler
+                </button> <button id="submitBtn"  class="btn btn-success">
+                    Modifier
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+ 
+ 
+@await Html.PartialAsync("~/Views/Shared/Components/_ModalSuppression.cshtml")
+
+ 
+@await Html.PartialAsync("~/Views/Shared/Components/_Toast.cshtml")
+

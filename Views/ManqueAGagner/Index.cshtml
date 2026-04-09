@@ -1,0 +1,188 @@
+﻿@model IEnumerable<SYSGES_MAGs.Models.TypeMag>
+
+@{
+    var index = 1;
+}
+ 
+<div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+    <div>
+        <nav>
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item fw-bold"> <a href="@Url.Action("Index", "ManqueAGagner")"> Gestion des MAGs </a> </li> 
+            </ol>
+        </nav>
+    </div>
+     
+
+</div>
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-xxl-9">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between">
+                <div class="card-title"> Liste des types de MAG </div>
+                <button class="btn btn-primary open-modal-btn" id="openMagModalBtn">
+                    <i class="fa-solid fa-plus me-1 fw-medium align-middle"></i>Nouveau MAG
+                </button> 
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover text-nowrap table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">P.No</th>
+                                <th scope="col">Description MAG</th>
+                                <th scope="col">Email</th>  
+                                <th scope="col" >Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody> 
+                            @if (!Model.Any())
+                            {
+                                <tr class="text-center text-danger">
+                                    <td colspan="4">Aucune donnée disponible pour les types de Manque à Gagner !</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var typeMag in Model)
+                                {
+                                    <tr>
+                                        <td>@index</td>
+                                        <td>@typeMag.Description</td>
+                                        <td>@typeMag.Email</td>
+                                        <td>
+                                            <div class="btn-list d-flex align-items-center justify-content-center">
+                                                <a href="@Url.Action("Synthese", "ManqueAGagner", new { id = typeMag.Id })"
+                                                   class="btn btn-info @(ViewContext.RouteData.Values["action"]?.ToString() == "Synthese" ? "active" : "")">
+                                                    Synthèse
+                                                </a>
+                                                 
+                                                <form onsubmit="DownloadBkmvti(event)">
+                                                    <input type="hidden" id="typeMag" name="typeMag" value="@typeMag.Id" />
+                                                    <button type="submit" class="btn btn-success">
+                                                        Télécharger
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex align-items-center">
+                    <div>  </div>
+                    <div class="ms-auto">
+                        <nav aria-label="Page navigation" class="pagination-style-4">
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="javascript:void(0);">
+                                        Prev
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link text-primary" href="javascript:void(0);">
+                                        next
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+
+</div>
+
+@* Modal de creation de mag  onsubmit="event.preventDefault(); saveMag(event)" *@
+
+<form class="modal" id="createMagModal" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault(); SaveMag(event)">
+    @Html.AntiForgeryToken()
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Nouveau MAG</h6> <button type="button" class="btn-close cancelBtn"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row gy-3">
+                    <div class="col-xl-12">
+                        <label for="typeMag" class="form-label">Type de MAG <span class="text-danger">*</span></label>
+                        <select name="typeMag" class="form-select">
+                            <option selected="" disabled>Selectionnez un type de MAG</option>
+                            <option value="CL_AV_PACK">Client avec package</option>
+                            <option value="CL_SA_PACK">Client sans package</option>
+                            <option value="CL_SA_PACK">Client avec plus d'une carte gratuite</option>
+                            <option value="CL_SA_PACK">Client avec carte business gratuite</option>
+                            <option value="CL_SA_PACK">Client avec motié tarif carte sans dérogation existante</option>
+                            <option value="CL_CTX">Client avec carte sur compte d'épargne gratuite</option>
+                            <option value="CL_CTX">Client avec carte non aligné à la gamme de package </option>
+                        </select>
+                    </div>
+                    <div class="col-xl-12 d-flex align-items-center justify-content-center">
+                        <div class="col-xl-6 me-2">
+                            <label for="startPeriod" class="form-label">Période début <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="startPeriod" name="startPeriod" placeholder="Période de début">
+                        </div>
+                        <div class="col-xl-6">
+                            <label for="endPeriod" class="form-label">Période Fin <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="endPeriod" name="endPeriod" placeholder="Période de début">
+                        </div>
+                         
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="apprint" class="form-label">Fichier Apprint <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="apprint" name="apprint" placeholder="Fournir le fichier Apprint">
+                    </div>
+
+                    <div class="col-xl-12">
+                        <label for="openAccount" class="form-label">Fichier compte ouvert <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="openAccount" name="openAccount" placeholder="Fichier compte ouvert">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="activeAccount" class="form-label">Fichier Compte actif <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="activeAccount" name="activeAccount" placeholder="Fichier compte actif">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="activePackage" class="form-label">Package actif <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="activePackage" name="activePackage" placeholder="Fichier Package actif">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="dateLastSouPackEchu" class="form-label">Fichier date dernière souscription package échu <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="dateLastSouPackEchu" name="dateLastSouPackEchu" placeholder="Fichier package echu">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="accountHisDebiteByRedevCard" class="form-label">Fichier compte débité par redev carte <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="accountHisDebiteByRedevCard" name="accountHisDebiteByRedevCard" placeholder="Fichier compte débité par redev carte">
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light cancelBtn">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-success">
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+ 
+@await Html.PartialAsync("~/Views/Shared/Components/_ModalSuppression.cshtml")
+
+ 
+@await Html.PartialAsync("~/Views/Shared/Components/_Toast.cshtml")
+
