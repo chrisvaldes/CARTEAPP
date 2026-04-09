@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="12.*" />
+    <PackageReference Include="AutoMapper" Version="15.*" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.*" />
     <PackageReference Include="EPPlus" Version="8.5.0" />
     <PackageReference Include="EPPlus.Interfaces" Version="8.4.0" />
