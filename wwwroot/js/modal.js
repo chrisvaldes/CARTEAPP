@@ -1,303 +1,14 @@
-﻿//// modal.js
-//// Restructured: query DOM after load, guard nulls, single global handlers.
-
-//document.addEventListener('DOMContentLoaded', () => {
-//    // Récupération des éléments de la page
-//    const modal = document.getElementById("createProfileModal");
-//    const openBtn = document.getElementById("openProfileModalBtn");
-//    const closeBtn = document.getElementById("closeModalBtn");
-//    // Sélectionner tous les boutons Cancel 
-//    const cancelButtons = document.querySelectorAll(".cancelBtn");
-
-//    // modal update
-//    const updateModal = document.getElementById("updateProfileModal");
-//    const openUpdateBtns = document.querySelectorAll(".openUpdateProfileModalBtn");
-//    //const closeUpdateModalBtn = document.getElementById("closeUpdateModalBtn");
-//    //const cancelUpdateModalBtn = document.getElementById("cancelUpdateBtn");
-
-//    // modal alert / suppression
-//    const modalAlert = document.getElementById("openAlertParameter");
-//    const deleteProfilBtn = document.getElementById("deleteProfilBtn");
-
-//    // Helper to hide all modals
-//    function hideAllModals() {
-//        if (modal) modal.style.display = "none";
-//        if (updateModal) updateModal.style.display = "none";
-//        if (modalAlert) modalAlert.style.display = "none";
-//    }
-
-//    // Ouvrir le modal principal
-//    if (openBtn && modal) {
-//        openBtn.addEventListener('click', () => { modal.style.display = 'block'; });
-//    }
-
-//    // Fermer avec les boutons cancel (tous)
-//    if (cancelButtons && cancelButtons.length) {
-//        cancelButtons.forEach(btn => {
-//            btn.addEventListener('click', () => {
-//                hideAllModals();
-//            });
-//        });
-//    }
-
-//    // Fermer si clic à l'extérieur (handler unique)
-//    window.addEventListener('click', (event) => {
-//        const target = event.target;
-//        if (modal && target === modal) hideAllModals();
-//        if (updateModal && target === updateModal) hideAllModals();
-//        if (modalAlert && target === modalAlert) hideAllModals();
-//    });
-
-//    // Suppression: écouteur sur le bouton delete (si présent)
-//    if (deleteProfilBtn) {
-//        deleteProfilBtn.addEventListener("click", function (event) {
-//            event.preventDefault();
-
-//            const id = this.getAttribute("data-id"); // Récupérer l'ID stocké
-
-//            fetch(`/Profil/DeleteProfil/${id}`, {
-//                method: "DELETE",
-//                headers: {
-//                    "Content-Type": "application/json",
-//                    "X-Requested-With": "XMLHttpRequest"
-//                }
-//            })
-//                .then(response => {
-//                    if (!response.ok) throw new Error("Erreur lors de la suppression");
-//                    return response.json();
-//                })
-//                .then(result => {
-//                    if (result.success) {
-//                        // suppose showToast existe globalement
-//                        showToast(result.message, "success");
-//                        if (modalAlert) modalAlert.style.display = "none";
-//                        setTimeout(() => { location.reload(); }, 1000);
-//                    } else {
-//                        showToast(result.message, "warning");
-//                    }
-//                })
-//                .catch(error => {
-//                    showToast("Erreur : " + error.message, "danger");
-//                });
-//        });
-//    }
-
-//    // Attacher un événement à chaque bouton "Modifier" pour ouvrir updateModal
-//    if (openUpdateBtns && openUpdateBtns.length) {
-//        openUpdateBtns.forEach(btn => {
-//            btn.addEventListener("click", function () {
-//                const id = this.getAttribute("data-id");
-
-//                // Charger les données depuis le serveur
-//                fetch(`/Profil/GetProfil/${id}`, {
-//                    headers: {
-//                        "X-Requested-With": "XMLHttpRequest",
-//                        "Content-Type": "application/json"
-//                    }
-//                })
-//                    .then(response => {
-//                        if (response.status === 440 || response.status === 401) {
-//                            window.location.href = "/Auth/Login";
-//                            return;
-//                        }
-//                        if (!response.ok) {
-//                            throw new Error('Erreur réseau');
-//                        }
-//                        return response.json();
-//                    })
-//                    .then(result => {
-//                        if (!result) return; // cas où redirect a eu lieu
-//                        if (!result.success) {
-//                            alert(result.message);
-//                            return;
-//                        }
-
-//                        const profil = result.data || {};
-
-//                        // Remplir le formulaire si les éléments existent
-//                        const setIfExists = (id, value) => {
-//                            const el = document.getElementById(id);
-//                            if (el) el.value = value ?? '';
-//                        };
-
-//                        setIfExists("profileId", profil.id);
-//                        setIfExists("Username", profil.username);
-//                        setIfExists("Userag", profil.userag);
-//                        setIfExists("TypeProfileString", profil.typeProfile);
-//                        setIfExists("Status", profil.status);
-//                        setIfExists("Email", profil.email);
-
-//                        // Afficher le modal de mise à jour
-//                        if (updateModal) updateModal.style.display = "block";
-//                    })
-//                    .catch(err => alert(err.message));
-//            });
-//        });
-//    }
-//});
-
-
-
-
-//// Fonction appelée depuis le bouton du tableau pour le modal de confirmation de suppression
-//function showDeleteProfile(id) {
-//    const modalAlert = document.getElementById("openAlertParameter");
-//    const deleteProfilBtn = document.getElementById("deleteProfilBtn");
-
-//    // Stocker l'ID dans un attribut data-id
-//    deleteProfilBtn.setAttribute("data-id", id);
-
-//    // Afficher le modal
-//    modalAlert.style.display = "block";
-//    // Fermer le modal
-//    cancelButtons.forEach(btn => {
-//        btn.addEventListener("click", () => { 
-//            modalAlert.style.display = "none";
-//        });
-//    });
-//    // Fermer si clic à l'extérieur
-//    window.onclick = (event) => {
-//        if ( event.target === modalAlert) { 
-//            modalAlert.style.display = "none";
-//        }
-//    };
-//}
-
- 
-
-//// Écouteur unique pour la suppression
-//document.getElementById("deleteProfilBtn").addEventListener("click", function (event) {
-//    event.preventDefault();
-
-//    const id = this.getAttribute("data-id"); // Récupérer l'ID stocké
-
-//    fetch(`/Profil/DeleteProfil/${id}`, {
-//        method: "DELETE",
-//        headers: {
-//            "Content-Type": "application/json",
-//            "X-Requested-With": "XMLHttpRequest"
-//        }
-//    })
-//        .then(response => {
-//            if (!response.ok) throw new Error("Erreur lors de la suppression");
-//            return response.json();
-//        })
-//        .then(result => {
-//            if (result.success) {
-//                showToast(result.message, "success");
-//                document.getElementById("openAlertParameter").style.display = "none";
-//                setTimeout(() => {
-//                    location.reload();
-//                }, 1000);
-//            } else {
-//                showToast(result.message, "warning");
-//            }
-//        })
-//        .catch(error => {
-//            showToast("Erreur : " + error.message, "danger");
-//        });
-//});
-
- 
-//// Ouvrir le modal
-//openBtn.onclick = () => {
-//modal.style.display = "block";
-//};
-
-
-//// Fermer le modal
-//cancelButtons.forEach(btn => {
-//btn.addEventListener("click", () => {
-//modal.style.display = "none";
-//updateModal.style.display = "none";
-////modalAlert.style.display = "none";
-//});
-//});
-
-//// Fermer si clic à l'extérieur
-//window.onclick = (event) => {
-//if (event.target === modal || event.target === updateModal || event.target === modalAlert) {
-//modal.style.display = "none";
-//updateModal.style.display = "none";
-////modalAlert.style.display = "none";
-
-//}
-//};
-
-//////// modal update
-//const openUpdatebtn = document.getElementById("openUpdateProfileModalBtn");
-//const updateModal = document.getElementById("updateProfileModal");
-//const closeUpdateModalBtn = document.getElementById("closeUpdateModalBtn");
-//const cancelUpdateModalBtn = document.getElementById("cancelUpdateBtn");
-
-//// Attacher un événement à chaque bouton "Modifier"
-//document.querySelectorAll(".openUpdateProfileModalBtn").forEach(btn => {
-//    btn.addEventListener("click", function () {
-//        const id = this.getAttribute("data-id"); 
-
-//        // Charger les données depuis le serveur
-//        fetch(`/Profil/GetProfil/${id}`, {
-//            headers: {
-//                "X-Requested-With": "XMLHttpRequest",
-//                "Content-Type" : "application/json"
-//            }
-//        })
-//            .then(response => {
-//                if (response.status === 440) { // Token expiré
-//                    window.location.href = "/Auth/Login";
-//                    return;
-//                }
-//                if (response.status === 401) { // Non autorisé
-//                    window.location.href = "/Auth/Login";
-//                }
-//                if (!response.ok) {
-//                    window.location.href = "/Auth/Login";
-//                }
-//                return response.json();
-//            })
-//            .then(result => {
-//                if (!result.success) {
-//                    alert(result.message);
-//                    return;
-//                }
-
-//                const profil = result.data; // objet Profil renvoyé par le contrôleur
-                 
-
-//                // Remplir le formulaire
-//                //document.getElementById("profileId").value = profil.id;
-//                document.getElementById("Username").value = profil.username;
-//                document.getElementById("Userag").value = profil.userag;
-//                document.getElementById("TypeProfileString").value = profil.typeProfile;
-//                document.getElementById("Status").value = profil.status;
-//                document.getElementById("Email").value = profil.email;
-
-//                // Afficher le modal
-//                updateModal.style.display = "block";
-//            })
-//            .catch(err => alert(err.message));
-
-//    });
-//});
-////openUpdatebtn.onclick = () => {
-////updateModal.style.display = "block";
-////};
-
-
-
-
-
-//// Ouvrir modal alerte
-////openModalAlertBtn.onclick = () => {
-////modalAlert.style.display = "block";
-////};
-
-// modal.js
-// Combined modal and form helper functions
-// - Provides modal management (open/close/update/delete)
-// - Provides form helpers: showToast, loaders, LoginAsync, saveProfil
-
+﻿ 
 // ----- Form helper functions (kept global) -----
+
+const mapProfil = {
+    0: "SUPER_ADMIN",
+    1: "ADMIN",
+    2: "MON_OFFICER",
+    3: "MON_MANAGER",
+    4: "COMPTABLE"
+
+};
 function showToast(message, type) {
     try {
         const modal = document.getElementById("createProfileModal");
@@ -426,7 +137,7 @@ async function DownloadBkmvti(event) {
             throw new Error("Erreur lors du téléchargement");
         }
 
-        // ⚠️ IMPORTANT : lire en blob (fichier)
+        // IMPORTANT : lire en blob (fichier)
         const blob = await response.blob();
 
         // créer lien de téléchargement
@@ -660,23 +371,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         const profil = result.data || {};
+  
 
                         // Remplir le formulaire si les éléments existent
                         const setIfExists = (id, value) => {
                             const el = document.getElementById(id);
                             if (el) el.value = value ?? '';
-                        };
-
+                        }; 
                         setIfExists("Username", profil.username);
                         setIfExists("Userag", profil.userag);
-                        setIfExists("TypeProfileString", profil.typeProfile);
+                        
+
+                        setIfExists("TypeProfileString", mapProfil[profil.typeProfile] || "Inconnu");
                         setIfExists("Status", profil.status);
                         setIfExists("Email", profil.email);
 
                         // Afficher le modal de mise à jour
                         if (updateModal) updateModal.style.display = "block";
                     })
-                    .catch(err => alert(err.message));
+                    .catch(err => alert( "Error : " +err.message));
             });
         });
     }

@@ -22,7 +22,7 @@
     <link id="style" href="~/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet"> <!-- Style Css -->
     <link href="~/css/styles.css" rel="stylesheet"> <!-- Icons Css -->
     <link href="~/css/icons.css" rel="stylesheet"> <!-- Node Waves Css -->
-    <link href="~/libs/node-waves/waves.min.css" rel="stylesheet"> <!-- Simplebar Css -->
+    @* <link href="~/libs/node-waves/waves.min.css" rel="stylesheet"> <!-- Simplebar Css --> *@
     <link href="~/libs/simplebar/simplebar.min.css" rel="stylesheet"> <!-- Color Picker Css -->
     <link rel="stylesheet" href="~/libs/simonwep/pickr/themes/nano.min.css"> <!-- Choices Css -->
     <link rel="stylesheet" href="~/libs/choices.js/public/assets/styles/choices.min.css"> <!-- FlatPickr CSS -->
@@ -83,20 +83,8 @@
 
         <div id="responsive-overlay"></div> <!-- Scroll To Top --> <!-- Popper JS -->
 
-        <script src="~/libs/popperjs/core/umd/popper.min.js"></script>
-
+      
  
-        <script src="~/js/sticky.js"></script>
-        <script src="~/js/login.js"></script>
- 
-        <script src="~/js/simplebar.js"></script>
-
- 
-        <script src="~/libs/simonwep/pickr/pickr.es5.min.js"></script>
- 
-        <script src="~/libs/flatpickr/flatpickr.min.js"></script>
- 
-        <script src="~/libs/apexcharts/apexcharts.min.js"></script>
  
         <script src="~/js/custom-switcher.min.js"></script>
 
@@ -104,31 +92,43 @@
 
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
  
-        <script src="~/js/show-password.js"></script>
+        <script src="~/js/show-password.js"></script> 
 
-        <script src="~/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
- 
-        <script src="~/js/defaultmenu.min.js"></script>
+        <!-- CORE (toujours en premier) -->
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- LIBS (chargées AVANT utilisation) -->
+        <script src="~/libs/popperjs/core/umd/popper.min.js"></script>
 
         <script src="~/libs/node-waves/waves.min.js"></script>
-
-        <script src="~/libs/simplebar/simplebar.min.js"></script>
-
-        <script src="~/js/crm-deals.js"></script>
-
-        <script src="~/js/crm-leads.js"></script>
-
         <script src="~/libs/dragula/dragula.min.js"></script>
- 
+        <script src="~/libs/simplebar/simplebar.min.js"></script>
+        <script src="~/libs/apexcharts/apexcharts.min.js"></script>
+
+        <script src="~/libs/simonwep/pickr/pickr.es5.min.js"></script>
+        <script src="~/libs/flatpickr/flatpickr.min.js"></script>
         <script src="~/libs/tarekraafat/autocomplete.js/autoComplete.min.js"></script>
- 
-        <script src="~/js/projects-dashboard.js"></script>
- 
-        <script src="~/js/custom.js"></script>
-        <script src="~/js/modal.js"></script> 
-        <script src="~/js/formFunctions.js"></script>
         <script src="~/libs/sweetalert2/sweetalert2.min.js"></script>
+
+        <!-- SCRIPTS UI / TEMPLATE -->
+        <script src="~/js/sticky.js"></script>
+        <script src="~/js/defaultmenu.min.js"></script>
+        <script src="~/js/show-password.js"></script>
+
+        <!-- SCRIPTS QUI DÉPENDENT DES LIBS -->
+        <script src="~/js/simplebar.js"></script>
+        <script src="~/js/crm-deals.js"></script>
+        <script src="~/js/projects-dashboard.js"></script>
+
+        <!-- SCRIPTS CUSTOM -->
+        <script src="~/js/custom.js"></script>
+        <script src="~/js/modal.js"></script>
         <script src="~/js/sweet-alerts.js"></script>
+
+        <!-- SCRIPTS OPTIONNELS -->
+        <script src="~/js/login.js"></script>
+        <script src="~/js/crm-leads.js"></script>
 
         
         @await RenderSectionAsync("Scripts", required: false)

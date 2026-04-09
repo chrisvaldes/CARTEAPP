@@ -114,7 +114,7 @@ wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\jquery\dist\jquery.min.map
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\images\brand-logos\télécharger.ico
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\css\icons.css
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\node-waves\wave.min.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\jquery-validation\LICENSE.md
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\css\site.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\crm-deals.js
@@ -127,7 +127,7 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\loader.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\login.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\main.js
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\modal.js
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\css\icons.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\projects-dashboard.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\show-password.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\simplebar.js
@@ -145,7 +145,7 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\dragula\dra
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\dragula\dragula.min.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\flatpickr\flatpickr.min.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\flatpickr\flatpickr.min.js
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\node-waves\wave.min.css
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\js\modal.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\node-waves\waves.min.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\popperjs\core\umd\popper.min.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\preline\preline.js

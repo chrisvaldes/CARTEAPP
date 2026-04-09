@@ -19,6 +19,7 @@ namespace SYSGES_MAGs.Services.IServices
 
         Task<IEnumerable<TypeMag>> GetAllTypeMagsAsync();
         public Task<TypeMagWithSyntheseDto> GetTypeMagWithSynthese(Guid typeMagId);
+        public Task<bool> IsDownloadAsync(Guid typeMagId);
 
     }
 }

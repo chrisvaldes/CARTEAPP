@@ -63,6 +63,21 @@ public class TypeMagRepository : ITypeMagRepository
         return await _dbContext.TypeMags
             .FirstOrDefaultAsync(x => x.PeriodeFin > startUtc);
     }
+
+    public async Task<bool> IsDownload(Guid typeMagId)
+    {
+        var typeMag = await _dbContext.TypeMags
+            .FirstOrDefaultAsync(x => x.Id == typeMagId);
+
+        if (typeMag == null)
+            return false;
+
+        typeMag.isAlreadyDownload = true;
+
+        await _dbContext.SaveChangesAsync();
+
+        return true;
+    }
     public async Task<TypeMag> SaveTypeMagAsync(TypeMag typeMag)
     {
         try

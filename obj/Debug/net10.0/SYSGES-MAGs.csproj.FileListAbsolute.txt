@@ -181,7 +181,6 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\rjsmcs
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\scopedcss\bundle\SYSGES-MAGs.styles.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\scopedcss\projectbundle\SYSGES-MAGs.bundle.scp.css
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\lo0v0l5300-{0}-nu96qterpp-nu96qterpp.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\bpes1lrwtw-{0}-yu78tspv7y-yu78tspv7y.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\7g4hs4hesw-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\yr5yr3uz0u-{0}-5ipweew5fc-5ipweew5fc.gz
@@ -210,7 +209,6 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compre
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\2zp2jvuytz-{0}-r4stsqctrs-r4stsqctrs.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\ml7z6x8p5l-{0}-gno4lkuonv-gno4lkuonv.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\a9midgax9p-{0}-mzk9qs9gcd-mzk9qs9gcd.gz
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\adqq31r80e-{0}-iak3rnxyx5-iak3rnxyx5.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\0wyof162c2-{0}-eka0sqlccx-eka0sqlccx.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\ah3btk0qyp-{0}-tb38ec77vk-tb38ec77vk.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\s7t0doqug7-{0}-662kmc5zip-662kmc5zip.gz
@@ -297,5 +295,8 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\SYSGES
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\ref\SYSGES-MAGs.dll
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\gmcfurfihv-{0}-jmqk0luerx-jmqk0luerx.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\30n2qoi6qh-{0}-p5myyams4d-p5myyams4d.gz
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\4jjmmmkn8p-{0}-3aki4l1f07-3aki4l1f07.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\SYSGES-MAGs.sourcelink.json
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\lo0v0l5300-{0}-lhovbmzwgq-lhovbmzwgq.gz
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\4jjmmmkn8p-{0}-zmxugcpal3-zmxugcpal3.gz
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\adqq31r80e-{0}-9vtc6mxhy3-9vtc6mxhy3.gz

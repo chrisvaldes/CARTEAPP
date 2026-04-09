@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using SYSGES_MAGs.Data; 
 using SYSGES_MAGs.Middleware;
 using SYSGES_MAGs.Repository;
@@ -31,8 +32,8 @@ builder.Services.AddScoped<IBkPrdCliRepository, BkPrdCliRepository>();
 builder.Services.AddScoped<IBkmvtiRepository, BkmvtiRepository>();
 builder.Services.AddScoped<ITypeMagRepository, TypeMagRepository>(); 
 builder.Services.AddScoped<IBkmvtiService, BkmvtiService>();
-
-
+ 
+ExcelPackage.License.SetNonCommercialPersonal("SYSGES-MAGs");
 
 var app = builder.Build();
 

@@ -40,6 +40,15 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr class="text-center text-danger">
+                                    <td colspan="7">Aucun profil utilisateur enregistré!!!</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                                            
                             @foreach(var profil in Model)
                             {
                                 <tr>
@@ -71,7 +80,7 @@
                                 </tr>
                                 index++;
                             }
-   
+                            }
                         </tbody>
                     </table>
                 </div>
