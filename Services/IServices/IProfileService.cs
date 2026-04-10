@@ -10,6 +10,6 @@ namespace SYSGES_MAGs.Services.IServices
         Task<bool> DeleteAsync(Guid id);
         Task<ServiceResult<Profil>> GetByIdAsync(Guid id);
         Task<IEnumerable<ProfilDto>> GetAll();
-        public Task<Profil> GetByUserAg(string userAg);
+        public Task<ServiceResult<Profil>> GetByUserEmail(string userAg);
     }
 }

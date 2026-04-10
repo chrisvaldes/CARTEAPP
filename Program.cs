@@ -32,7 +32,8 @@ builder.Services.AddScoped<IBkPrdCliRepository, BkPrdCliRepository>();
 builder.Services.AddScoped<IBkmvtiRepository, BkmvtiRepository>();
 builder.Services.AddScoped<ITypeMagRepository, TypeMagRepository>(); 
 builder.Services.AddScoped<IBkmvtiService, BkmvtiService>();
- 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 ExcelPackage.License.SetNonCommercialPersonal("SYSGES-MAGs");
 
 var app = builder.Build();

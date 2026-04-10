@@ -64,9 +64,23 @@ namespace SYSGES_MAGs.Services
             };
         }
 
-        public async Task< Profil> GetByUserAg(string userAg)
+        public async Task<ServiceResult<Profil>> GetByUserEmail(string userEmail)
         { 
-            return await _profileRepository.GetByUserAgAsync(userAg); ;
+            Profil profil = await _profileRepository.GetByUserEmailAsync(userEmail);
+            if (profil == null)
+            {
+                return new ServiceResult<Profil>
+                {
+                    Success = false,
+                    Message = "Oups!!! L'utilisateur n'existe pas",
+
+                };
+            }
+            return new ServiceResult<Profil>
+            {
+                Success = true, 
+                Data = profil
+            };
         }
 
         public async Task<ProfilDto> SaveAsync(ProfilDto profildto)

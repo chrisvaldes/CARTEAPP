@@ -37,7 +37,7 @@ namespace SYSGES_MAGs.Controllers
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto request)
         {
 
-            Profil profil = await _profilService.GetByUserAg(request.Username);
+            ServiceResult<Profil> profil = await _profilService.GetByUserEmail(request.Username);
 
             // Exemple avec ta classe User
             var passwordHasher = new PasswordHasher<User>();
@@ -80,7 +80,7 @@ namespace SYSGES_MAGs.Controllers
             return Json(new { success = true,
                 message = serviceResult.Message,
                 expiresAt = expiresAtIso,
-                redirectUrl = profil.TypeProfile switch
+                redirectUrl = profil.Data!.TypeProfile switch
                 {
                     EnumProfil.SUPER_ADMIN => "/Profil/Index",
                     EnumProfil.ADMIN => "/Profil/Index",

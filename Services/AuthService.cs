@@ -71,15 +71,15 @@ namespace SYSGES_MAGs.Services
         {
             if (user == null) throw new ArgumentNullException(nameof(user));
 
-            Profil profil = await _profilService.GetByUserAg(user.Username);
+            ServiceResult<Profil> profil = await _profilService.GetByUserEmail(user.Username);
 
             // Création des claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username), // Nom d'utilisateur
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // ID utilisateur  
-                new Claim(ClaimTypes.Expiration, DateTime.UtcNow.AddHours(1).ToString("o")), 
-                new Claim(ClaimTypes.Role, profil.TypeProfile.ToString()),
+                new Claim(ClaimTypes.Expiration, DateTime.UtcNow.AddHours(1).ToString("o")),
+                new Claim(ClaimTypes.Role, profil.Data!.TypeProfile.ToString()),
             };
 
             // Clé secrète

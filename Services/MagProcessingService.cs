@@ -18,9 +18,9 @@ namespace SYSGES_MAGs.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IBkPrdCliRepository _bkPrdCliRepository;
         private readonly ITypeMagRepository _typeMagRepository;
-        private readonly IBkmvtiRepository _bkmvtiRepository;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IBkmvtiRepository _bkmvtiRepository; 
         private readonly ApplicationDbContext _dbContext;
+        private readonly IEmailService _emailService;
         public BkPrdCliDto bkPrdCliDto = new BkPrdCliDto();
         public long prixMensuelCarte = 0;
 
@@ -28,14 +28,14 @@ namespace SYSGES_MAGs.Services
         public MagProcessingService(
             ILogger<MagProcessingService> logger,
             IHttpContextAccessor httpContextAccessor, IBkPrdCliRepository bkPrdCliRepository, ITypeMagRepository typeMagRepository,
-            IBkmvtiRepository kmvtiRepository, IServiceScopeFactory serviceScopeFactory, ApplicationDbContext context)
+            IBkmvtiRepository kmvtiRepository, IServiceScopeFactory serviceScopeFactory, ApplicationDbContext context, IEmailService emailService)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _bkPrdCliRepository = bkPrdCliRepository;
             _typeMagRepository = typeMagRepository;
-            _bkmvtiRepository = kmvtiRepository;
-            _serviceScopeFactory = serviceScopeFactory;
+            _bkmvtiRepository = kmvtiRepository; 
+            _emailService = emailService;
             _dbContext = context;
         }
 
@@ -404,35 +404,35 @@ namespace SYSGES_MAGs.Services
                                                         break;
                                                 }
 
-                                            bkmvtis.Add(new Bkmvti
-                                            {
-                                                NumeroCompte = numeroCompte,
-                                                DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte!.Value, DateTimeKind.Utc),
-                                                DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte, DateTimeKind.Utc),
-                                                CodeTarif = codeTarifComplet,
-                                                CodeCarte = apprint.CodeCarte!,
-                                                DesignationCarte = DesignationCarte,
-                                                startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
-                                                endPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou 
-                                                TypeMag = typeMagResult.Id,
-                                                CodeIN = "IN3",
-                                                CodeDevise = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(9, 3),
-                                                EstActif = apprint.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
-                                                CodeAgence = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
-                                                TypeBeneficiaire = "AUTO",
-                                                ReferenceBeneficiaire = 691228,
-                                                CleBeneficiaire = 46,
-                                                DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
-                                                PrixUnitCarte = prixMensuelCarte * (nbMois ?? 1), // prix mensuel de la carte associée ou pas à un pack
-                                                ReferenceOperation = "RVSA" + start.ToString("yy") + start.Month.ToString("D2") + start.Day.ToString("D2"),
-                                                CodeOperation = "C",
-                                                CodeEmetteur = "FACSER",
-                                                IndicateurDomiciliation = "N",
-                                                LibelleCarte = BuildLibelleCarte(apprint.EstActifCodeTarifNumeroCompte, apprint.CodeCarte, startPeriod),
-                                                Carte = apprint.NumCarte!,
-                                                Sequence = "001",
+                                                bkmvtis.Add(new Bkmvti
+                                                {
+                                                    NumeroCompte = numeroCompte,
+                                                    DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte!.Value, DateTimeKind.Utc),
+                                                    DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte, DateTimeKind.Utc),
+                                                    CodeTarif = codeTarifComplet,
+                                                    CodeCarte = apprint.CodeCarte!,
+                                                    DesignationCarte = DesignationCarte,
+                                                    startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                                                    endPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou 
+                                                    TypeMag = typeMagResult.Id,
+                                                    CodeIN = "IN3",
+                                                    CodeDevise = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(9, 3),
+                                                    EstActif = apprint.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
+                                                    CodeAgence = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
+                                                    TypeBeneficiaire = "AUTO",
+                                                    ReferenceBeneficiaire = 691228,
+                                                    CleBeneficiaire = 46,
+                                                    DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                                                    PrixUnitCarte = prixMensuelCarte * (nbMois ?? 1), // prix mensuel de la carte associée ou pas à un pack
+                                                    ReferenceOperation = "RVSA" + start.ToString("yy") + start.Month.ToString("D2") + start.Day.ToString("D2"),
+                                                    CodeOperation = "C",
+                                                    CodeEmetteur = "FACSER",
+                                                    IndicateurDomiciliation = "N",
+                                                    LibelleCarte = BuildLibelleCarte(apprint.EstActifCodeTarifNumeroCompte, apprint.CodeCarte, startPeriod),
+                                                    Carte = apprint.NumCarte!,
+                                                    Sequence = "001",
 
-                                            });
+                                                });
                                             }
                                         //}
 
@@ -453,7 +453,11 @@ namespace SYSGES_MAGs.Services
 
                         } 
                         await _bkmvtiRepository.SaveBkmvtiAsync(bkmvtis);
-
+                        await _emailService.SendEmailAsync(
+                             _httpContextAccessor.HttpContext?.User?.Identity?.Name!,
+                            "Notification MAG",
+                            "<h3>Votre traitement est terminé</h3>"
+                        );
                         // Si tout a réussi, commit de la transaction
                         await transaction.CommitAsync();
                     }

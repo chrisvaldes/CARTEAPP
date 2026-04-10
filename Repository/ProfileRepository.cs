@@ -51,10 +51,10 @@ namespace SYSGES_MAGs.Repository
             return profil; // Retourne l'objet Profil trouvé
         }
 
-        public async Task<Profil?> GetByUserAgAsync(string userAg)
+        public async Task<Profil?> GetByUserEmailAsync(string userEmail)
         {
             Profil? profil = await _context.Profiles
-                .FirstOrDefaultAsync(x => x.Userag == userAg);
+                .FirstOrDefaultAsync(x => x.Email == userEmail);
 
             if (profil != null)
             {
