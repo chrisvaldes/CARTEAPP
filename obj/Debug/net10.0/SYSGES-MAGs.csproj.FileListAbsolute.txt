@@ -298,5 +298,5 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compre
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\SYSGES-MAGs.sourcelink.json
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\lo0v0l5300-{0}-lhovbmzwgq-lhovbmzwgq.gz
-C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\4jjmmmkn8p-{0}-zmxugcpal3-zmxugcpal3.gz
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\adqq31r80e-{0}-9vtc6mxhy3-9vtc6mxhy3.gz
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\obj\Debug\net10.0\compressed\4jjmmmkn8p-{0}-yl8dbpl9tz-yl8dbpl9tz.gz

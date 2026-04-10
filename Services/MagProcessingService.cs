@@ -174,7 +174,7 @@ namespace SYSGES_MAGs.Services
                         TypeMag typeMagResult = await _typeMagRepository.SaveTypeMagAsync(new TypeMag
                         {
                             Description = "cap_" + start.Day.ToString("D2") + "_" + start.ToString("MMM", new CultureInfo("fr-FR"))
-                              + "_" + end.Day.ToString("D2") + "_" + end.ToString("MMM", new CultureInfo("fr-FR"))
+                              + "_" + start.Year + "_" + end.Day.ToString("D2") + "_" + end.ToString("MMM", new CultureInfo("fr-FR"))
                               + "_" + end.Year,
                             Email = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "unknown",
                             PeriodeDebut = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),

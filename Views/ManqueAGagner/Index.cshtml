@@ -20,10 +20,14 @@
         <div class="card custom-card">
             <div class="card-header justify-content-between">
                 <div class="card-title"> Liste des types de MAG </div>
-                <button class="btn btn-primary open-modal-btn" id="openMagModalBtn">
-                    <i class="fa-solid fa-plus me-1 fw-medium align-middle"></i>Nouveau MAG
-                </button> 
+                @if (User.IsInRole("SUPER_ADMIN") || User.IsInRole("ADMIN") || User.IsInRole("MON_OFFICER"))
+                {
+                    <button class="btn btn-primary open-modal-btn" id="openMagModalBtn">
+                        <i class="fa-solid fa-plus me-1 fw-medium align-middle"></i>Nouveau MAG
+                    </button>
+                } 
             </div>
+             
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover text-nowrap table-bordered">
@@ -31,7 +35,7 @@
                             <tr>
                                 <th scope="col">P.No</th>
                                 <th scope="col">Description MAG</th>
-                                <th scope="col">Email</th>  
+                                <th scope="col">AG utilisateur</th>  
                                 <th scope="col" class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -52,17 +56,22 @@
                                         <td>@typeMag.Email</td>
                                         <td>
                                             <div class="btn-list d-flex align-items-center justify-content-center">
+
                                                 <a href="@Url.Action("Synthese", "ManqueAGagner", new { id = typeMag.Id })"
                                                    class="btn btn-info @(ViewContext.RouteData.Values["action"]?.ToString() == "Synthese" ? "active" : "")">
                                                     Synthèse
                                                 </a>
-                                                 
-                                                <form onsubmit="DownloadBkmvti(event)">
-                                                    <input type="hidden" id="typeMag" name="typeMag" value="@typeMag.Id" />
-                                                    <button type="submit" class="btn btn-success">
-                                                        Télécharger
-                                                    </button>
-                                                </form>
+
+                                                @if (User.IsInRole("ADMIN") || User.IsInRole("SUPER_ADMIN") || User.IsInRole("COMPTABLE"))
+                                                {
+                                                    <form onsubmit="DownloadBkmvti(event)">
+                                                        <input type="hidden" id="typeMag" name="typeMag" value="@typeMag.Id" />
+                                                        <button type="submit" class="btn btn-success">
+                                                            Télécharger
+                                                        </button>
+                                                    </form>
+                                                }
+
                                             </div>
                                         </td>
                                     </tr>

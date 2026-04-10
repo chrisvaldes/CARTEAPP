@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SYSGES_MAGs.Models;
+using SYSGES_MAGs.Models.Enum;
 using SYSGES_MAGs.Models.ModelsDto;
 using SYSGES_MAGs.Services;
 using SYSGES_MAGs.Services.IServices;
@@ -35,8 +37,12 @@ namespace SYSGES_MAGs.Controllers
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto request)
         {
 
+            Profil profil = await _profilService.GetByUserAg(request.Username);
+
             // Exemple avec ta classe User
             var passwordHasher = new PasswordHasher<User>();
+
+
 
             // Crée un utilisateur temporaire juste pour le hachage
             var tempUser = new User();
@@ -67,13 +73,23 @@ namespace SYSGES_MAGs.Controllers
                 Expires = DateTimeOffset.UtcNow.AddHours(1)         
             };
 
-            //Profil userProfil = await _profilService.GetByIdAsync();
-
             Response.Cookies.Append("jwt", serviceResult.Token!, cookieOptions);
 
             // Return the expiration to the client (ISO UTC) so client-side can schedule redirect if desired
             var expiresAtIso = cookieOptions.Expires?.UtcDateTime.ToString("o");
-            return Json(new { success = true, message = serviceResult.Message, expiresAt = expiresAtIso });
+            return Json(new { success = true,
+                message = serviceResult.Message,
+                expiresAt = expiresAtIso,
+                redirectUrl = profil.TypeProfile switch
+                {
+                    EnumProfil.SUPER_ADMIN => "/Profil/Index",
+                    EnumProfil.ADMIN => "/Profil/Index",
+                    EnumProfil.MON_MANAGER => "/Manager/Dashboard",
+                    EnumProfil.MON_OFFICER => "/ManqueAGagner/Index",
+                    EnumProfil.COMPTABLE => "/ManqueAGagner/Index",
+                    _ => "/Home/Index"
+                }
+            });
         }                   
 
 

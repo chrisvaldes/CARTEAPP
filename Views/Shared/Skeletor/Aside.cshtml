@@ -32,22 +32,45 @@
                             </div>
                             <ul class="main-menu"
                                 style="display: block; margin-left: 0px; margin-right: 0px; margin-top : 1rem">
-                                <!-- Start::slide__category -->
-                                <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des Utilisateurs</span></li>
-                                <!-- End::slide__category --> <!-- Start::slide -->
-                                <!-- Single link: Liste des utilisateurs -->
-                                <li class="slide active">
-                                    <a href="@Url.Action("Index", "Profil")"
-                                       data-route="@Url.Action("Index", "Profil")"
-                                       class="side-menu__item">Liste des utilisateurs</a>
-                                </li> <!-- End::slide --> <!-- Start::slide__category -->
-                                <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des MAGs</span></li>
-                                <li class="slide">
-                                    <a href="@Url.Action("Index", "ManqueAGagner")"
-                                       data-route="@Url.Action("Index", "ManqueAGagner")"
-                                       class="side-menu__item">Traiter MAG</a>
-                                </li>
-                                <li class="slide">
+                                @if (User.IsInRole("SUPER_ADMIN") || User.IsInRole("ADMIN"))
+                                {
+                                    <!-- Start::slide__category -->
+                                    <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des Utilisateurs</span></li>
+                                    <!-- End::slide__category --> <!-- Start::slide -->
+                                    <!-- Single link: Liste des utilisateurs -->
+                                    <li class="slide active">
+                                        <a href="@Url.Action("Index", "Profil")"
+                                           data-route="@Url.Action("Index", "Profil")"
+                                           class="side-menu__item">Liste des utilisateurs</a>
+                                    </li> <!-- End::slide --> <!-- Start::slide__category -->
+                                    <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des MAGs</span></li>
+                                    <li class="slide">
+                                        <a href="@Url.Action("Index", "ManqueAGagner")"
+                                           data-route="@Url.Action("Index", "ManqueAGagner")"
+                                           class="side-menu__item">Traiter Nouveau MAG</a>
+                                    </li>
+                                }
+                                
+                                @if (User.IsInRole("MON_OFFICER"))
+                                {
+                                    <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des MAGs</span></li>
+                                    <li class="slide">
+                                        <a href="@Url.Action("Index", "ManqueAGagner")"
+                                           data-route="@Url.Action("Index", "ManqueAGagner")"
+                                           class="side-menu__item">Traiter Nouveau MAG</a>
+                                    </li>
+                                }
+                                
+                                @if ( User.IsInRole("COMPTABLE"))
+                                {
+                                    <li class="slide__category"><span class="category-name fw-bolder text-black">Gestion des MAGs</span></li>
+                                    <li class="slide">
+                                        <a href="@Url.Action("Index", "ManqueAGagner")"
+                                           data-route="@Url.Action("Index", "ManqueAGagner")"
+                                           class="side-menu__item">Télécharger MAG</a>
+                                    </li>
+                                }
+                                @* <li class="slide">
                                     <a href="add-products.html"
                                        class="side-menu__item">Client Carte & package aligner</a>
                                 </li>
@@ -69,7 +92,7 @@
                                 <li class="slide">
                                     <a href="full-calendar.html"
                                        class="side-menu__item">Clients en ctx & cpt fermés</a>
-                                </li>
+                                </li> *@
                                 @* <li class="slide has-sub">
                                     <a href="javascript:void(0);"
                                        class="side-menu__item">

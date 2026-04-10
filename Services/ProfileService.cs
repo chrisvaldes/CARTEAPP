@@ -64,6 +64,11 @@ namespace SYSGES_MAGs.Services
             };
         }
 
+        public async Task< Profil> GetByUserAg(string userAg)
+        { 
+            return await _profileRepository.GetByUserAgAsync(userAg); ;
+        }
+
         public async Task<ProfilDto> SaveAsync(ProfilDto profildto)
         {
             // convertir dto pour entite

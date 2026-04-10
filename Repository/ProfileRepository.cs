@@ -51,6 +51,19 @@ namespace SYSGES_MAGs.Repository
             return profil; // Retourne l'objet Profil trouvé
         }
 
+        public async Task<Profil?> GetByUserAgAsync(string userAg)
+        {
+            Profil? profil = await _context.Profiles
+                .FirstOrDefaultAsync(x => x.Userag == userAg);
+
+            if (profil != null)
+            {
+                _logger.LogInformation("user profile : " + profil.Username);
+            }
+
+            return profil;
+        }
+
 
 
         public async Task<Profil> SaveAsync(Profil profil)

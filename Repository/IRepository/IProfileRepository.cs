@@ -9,6 +9,7 @@ namespace SYSGES_MAGs.Repository.IRepository
         Task<ProfilDto> UpdateAsync(Profil profil);
         Task<bool> DeleteAsync(Guid id);
         Task<Profil?> GetByIdAsync(Guid id);
+        Task<Profil> GetByUserAgAsync(string userAg);
         Task<IEnumerable<Profil>> GetAll();
     }
 }

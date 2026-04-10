@@ -106,7 +106,9 @@ function LoginAsync(event) {
             if (result.success) {
                 toggleOffLoaderAndToast();
                 showToast(result.message, "success");
-                setTimeout(() => { window.location.href = "/Profil/Index"; }, 1500);
+                setTimeout(() => {
+                    window.location.href = result.redirectUrl;
+                }, 1500);
             } else {
                 toggleOffLoaderAndToast();
                 showToast(result.message, "danger");

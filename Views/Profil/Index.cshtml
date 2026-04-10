@@ -20,7 +20,7 @@
     <div class="col-xxl-9">
         <div class="card custom-card">
             <div class="card-header justify-content-between">
-                <div class="card-title"> Liste profils </div>
+                <div class="card-title"> Liste des utilisateurs </div>
                 <button class="btn btn-primary open-modal-btn" id="openProfileModalBtn">
                     <i class="fa-solid fa-plus me-1 fw-medium align-middle"></i>Nouveau utilisateur
                 </button> 
@@ -30,8 +30,7 @@
                     <table class="table table-hover text-nowrap table-bordered">
                         <thead>
                             <tr>
-                                <th scope="col">P.No</th>
-                                <th scope="col">Nom & Prenom</th>
+                                <th scope="col">P.No</th> 
                                 <th scope="col">AG Utilisateur</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Type Profil</th>
@@ -52,8 +51,7 @@
                             @foreach(var profil in Model)
                             {
                                 <tr>
-                                    <td> @index </td>
-                                    <td> <span class="fw-medium">@profil.Username</span> </td>
+                                    <td> @index </td> 
                                     <td>@profil.Userag</td>
                                     <td>
                                         @profil.Email

@@ -12,7 +12,7 @@ using System.Text;
 
 namespace SYSGES_MAGs.Services
 {
-    public class AuthService (ApplicationDbContext _context, IConfiguration _config, ILogger<AuthService> _logger) : IAuthService
+    public class AuthService (ApplicationDbContext _context, IConfiguration _config, ILogger<AuthService> _logger, IProfileService _profilService) : IAuthService
     {
 
 
@@ -54,7 +54,7 @@ namespace SYSGES_MAGs.Services
             {
                 Success = true,
                 Message = "Connexion réussie", 
-                Token = GenerateToken(user)
+                Token = await GenerateToken(user)
             };
         }
 
@@ -67,18 +67,19 @@ namespace SYSGES_MAGs.Services
             return result == PasswordVerificationResult.Failed;
         }
 
-        public string GenerateToken(User user)
+        public async Task<string> GenerateToken(User user)
         {
             if (user == null) throw new ArgumentNullException(nameof(user));
+
+            Profil profil = await _profilService.GetByUserAg(user.Username);
 
             // Création des claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username), // Nom d'utilisateur
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // ID utilisateur 
-                // expiration claim (ISO UTC)
-                new Claim(ClaimTypes.Expiration, DateTime.UtcNow.AddHours(1).ToString("o")),
-                new Claim(ClaimTypes.Role, "role"),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // ID utilisateur  
+                new Claim(ClaimTypes.Expiration, DateTime.UtcNow.AddHours(1).ToString("o")), 
+                new Claim(ClaimTypes.Role, profil.TypeProfile.ToString()),
             };
 
             // Clé secrète
@@ -89,8 +90,7 @@ namespace SYSGES_MAGs.Services
             var token = new JwtSecurityToken(
                 issuer: _config["jwt:Issuer"]!,
                 audience: _config["jwt:Audience"]!,
-                claims: claims,
-                // token valid for 1 hour
+                claims: claims, 
                 expires: DateTime.UtcNow.AddHours(1), 
                 signingCredentials: creds
             );
