@@ -7,6 +7,8 @@ using SYSGES_MAGs.Repository.IRepository;
 using SYSGES_MAGs.Services.IServices;
 using System.Globalization;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
  
 
@@ -20,8 +22,7 @@ namespace SYSGES_MAGs.Services
         private readonly ITypeMagRepository _typeMagRepository;
         private readonly IBkmvtiRepository _bkmvtiRepository; 
         private readonly ApplicationDbContext _dbContext;
-        private readonly IEmailService _emailService;
-        public BkPrdCliDto bkPrdCliDto = new BkPrdCliDto();
+        private readonly IEmailService _emailService; 
         public long prixMensuelCarte = 0;
 
         // Injection via constructeur
@@ -44,6 +45,17 @@ namespace SYSGES_MAGs.Services
         Dictionary<string, DateDsouPackEchuResponse> dateDersouPackEchus = new Dictionary<string, DateDsouPackEchuResponse>();
         Dictionary<string, HistCptDebiteRedevCarteResponse> histCptDebiteRedevCartes = new Dictionary<string, HistCptDebiteRedevCarteResponse>();
         Dictionary<string, PackagesActifsResponse> packActifs = new Dictionary<string, PackagesActifsResponse>();
+        BkPrdCliDto cliCartePackage = new BkPrdCliDto();
+        string numeroCompte = "";
+        //// EXTRACTION DE LA DATE DE CREATION DE LA CARTE 
+        DateTimeOffset? dateCreationCarte;
+
+        // Création de la date avec le 1er jour du mois
+        DateTimeOffset? dateValiditeCarte;
+
+        Dictionary<string, List<Apprints>> clientPlusUneCarte = new Dictionary<string, List<Apprints>>();
+
+        Dictionary<string, List<Bkmvti>> fichierComptatble = new Dictionary<string, List<Bkmvti>>();
 
         Dictionary<string, string> codeTarifNom = new Dictionary<string, string>()
         {
@@ -84,6 +96,15 @@ namespace SYSGES_MAGs.Services
             {"006", 8705 },
             {"011", 14906 },
             {"016", 29813 },
+        };
+
+        Dictionary<string, string> cartePackage = new Dictionary<string, string>
+        {
+            {"012", "300001" }, // Carte visa horizon
+            {"007", "300007" }, // Carte visa classic
+            {"006", "300004" }, // Carte visa premier
+            {"011", "300007" }, // Carte visa platinum
+            {"016", "300008" } // Carte visa infinite
         };
 
         // exlusion des cartes visa free, young, businnes
@@ -145,16 +166,16 @@ namespace SYSGES_MAGs.Services
                 comptesActifs = GetComptesActifs(worksheetCompteActif);
 
                 var worksheetCompteOuvert = compteOuvert.Workbook.Worksheets[0];
-                comptesOuverts = GetComptesOuvertResponse(worksheetCompteOuvert);
+                comptesOuverts = GetComptesOuvert (worksheetCompteOuvert);
 
                 var worksheetDsouPackEchu = dateDerniereSouPackEchu.Workbook.Worksheets[0];
-                dateDersouPackEchus = GetDsouPackEchuResponse(worksheetDsouPackEchu);
+                dateDersouPackEchus = GetDsouPackEchu (worksheetDsouPackEchu);
 
                 var worksheetHistCptDebiteRedev = histCptDebiteParRedevCarte.Workbook.Worksheets[0];
-                histCptDebiteRedevCartes = GetHistCptDebiteRedevCarteResponse(worksheetHistCptDebiteRedev);
+                histCptDebiteRedevCartes = GetHistCptDebiteRedevCarte (worksheetHistCptDebiteRedev);
 
                 var worksheetPackActif = packageActif.Workbook.Worksheets[0];
-                packActifs = GetPackagesActifsResponse(worksheetPackActif);
+                packActifs = GetPackagesActifs (worksheetPackActif);
 
                 DateTime start;
                 DateTime end;
@@ -211,47 +232,20 @@ namespace SYSGES_MAGs.Services
                                 // retour d'une ligne convertie du fichier apprint en un enregistrement Apprints
                                 Apprints apprint = ConvertTxtToApprint(ligneApprint, ligne);
 
+
                                 // EXTRACTION DU NUMERO DE COMPTE ET DES DATE DE CREATION ET DE VALIDATION DE LA CARTE
 
                                 // extraction du numéro de compte
-                                var numeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(12);
-                                _logger.LogInformation("************** numero de compte : " + numeroCompte);
-                                // EXTRACTION DE LA DATE DE CREATION DE LA CARTE
-                                StringBuilder strbuilderdatecreation = new StringBuilder();
-                                var dateCreationCarteTransform = apprint.DateCreationCarte;
-                                strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(4, 2));
-                                strbuilderdatecreation.Append("/");
-                                strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(2, 2));
-                                strbuilderdatecreation.Append("/");
-                                strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(0, 2));
-
-                                string dCreationCarte = strbuilderdatecreation.ToString();
-
-                                DateTime? dateCreationCarte = null;
-
-                                // Tentative de conversion
-                                if (DateTime.TryParse(dCreationCarte, out DateTime parsedDate))
-                                {
-                                    dateCreationCarte = parsedDate;
-                                }
-
-                                _logger.LogInformation("date de création : " + dateCreationCarte);
+                                numeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(12);
 
 
-                                // EXTRACTION DE LA DATE DE VALIDITE DE LA CARTE
-                                var dateValiditeAgenceCodeDeviseNumeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte;
-                                var annee = int.Parse(dateValiditeAgenceCodeDeviseNumeroCompte!.Substring(0, 2));
-                                var mois = int.Parse(dateValiditeAgenceCodeDeviseNumeroCompte.Substring(2, 2));
-                                annee += 2000;
-
-                                _logger.LogInformation("date de validite carte : " + mois + "/" + annee);
-
-
+                                //// EXTRACTION DE LA DATE DE CREATION DE LA CARTE 
+                                dateCreationCarte = GetDateCreationCarte(apprint);
+ 
                                 // Création de la date avec le 1er jour du mois
-                                DateTime dateValiditeCarte = new DateTime(annee, mois, 1);
+                                dateValiditeCarte = getDateValiditeCarte(apprint);
 
-                                _logger.LogInformation("date de validite carte : " + dateValiditeCarte);
-
+ 
 
                                 // Comparaison avec les dates fournies et autres exclusions
                                 if ((dateValiditeCarte <= DateTime.UtcNow) || // carte expirées
@@ -271,172 +265,56 @@ namespace SYSGES_MAGs.Services
                                 {
 
                                     // recuperation de la ligne bkprdcli correspondant au numéro de compte
-                                    bkPrdCliDto = await _bkPrdCliRepository.GetByNcpAsync(numeroCompte);
+                                     //cliCartePackage = await _bkPrdCliRepository.GetByNcpAsync(numeroCompte);
+ 
 
                                     // CLIENT SANS PACKAGE
-                                    if (bkPrdCliDto == null)
-                                    {
-                                        _logger.LogWarning($"Ligne {ligne} : Numéro de compte {numeroCompte} non trouvé dans la base de données bkprdcli.");
+                                    //if (cliCartePackage == null)
+                                    //{
+                                    //    _logger.LogWarning($"Ligne {ligne} : Numéro de compte {numeroCompte} non trouvé dans la base de données bkprdcli.");
 
-                                        // AJOUTER LE CARTE A LA LISTE DE CARTE SANS PACKAGE
-                                    }
-                                    else
-                                    {
-                                        // CLIENT AVEC PACKAGE
-
-                                        // si la carte est active et que sa date de création est POSTERIEUR à la période de début de prélèvement
-                                        if (dateCreationCarte <= startPeriod && dateCreationCarte < bkPrdCliDto.ddsou)
+                                    //    // AJOUTER LE CARTE A LA LISTE DE CARTE SANS PACKAGE
+                                    //}
+                                    //else
+                                    //{
+                                        if (!clientPlusUneCarte.ContainsKey(numeroCompte))
                                         {
+                                            clientPlusUneCarte[numeroCompte] = new List<Apprints>();
 
-                                            var nbMois = NombreMois(startPeriod, bkPrdCliDto.ddsou); 
+                                            clientPlusUneCarte[numeroCompte].Add(new Apprints
+                                            {
+                                                CodeCarte = apprint.CodeCarte,
+                                                NumCarte = apprint.NumCarte,
+                                                NomPropCarte = apprint.NomPropCarte,
+                                                LongNum = apprint.LongNum,
+                                                VhCodeCarte = apprint.VhCodeCarte,
+                                                QZero = apprint.QZero,
+                                                DateCreationCarte = apprint.DateCreationCarte,
+                                                EstActifCodeTarifNumeroCompte = apprint.EstActifCodeTarifNumeroCompte,
+                                                NomPrenom = apprint.NomPrenom,
+                                                LastProp = apprint.LastProp,
+                                                DateValiditeAgenceCodeDeviseNumeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte,
+                                            });
+                                        }
+                                        else
+                                        {
+                                            clientPlusUneCarte[numeroCompte].Add(new Apprints
+                                            {
+                                                CodeCarte = apprint.CodeCarte,
+                                                NumCarte = apprint.NumCarte,
+                                                NomPropCarte = apprint.NomPropCarte,
+                                                LongNum = apprint.LongNum,
+                                                VhCodeCarte = apprint.VhCodeCarte,
+                                                QZero = apprint.QZero,
+                                                DateCreationCarte = apprint.DateCreationCarte,
+                                                EstActifCodeTarifNumeroCompte = apprint.EstActifCodeTarifNumeroCompte,
+                                                NomPrenom = apprint.NomPrenom,
+                                                LastProp = apprint.LastProp,
+                                                DateValiditeAgenceCodeDeviseNumeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte,
+                                            });
+                                        }
 
-                                            
-                                            //if (nbMois != 0)
-                                            //{
-
-                                            //Utiliser CodeTarif = prefix + codeCarte comme précédemment
-                                            string codeTarifComplet = BuildCodeTarifComplet(apprint.EstActifCodeTarifNumeroCompte, apprint.CodeCarte);
-
-                                                string DesignationCarte = "";
-
-                                                switch (codeTarifComplet)
-                                                {
-                                                    case "CL012":
-                                                        DesignationCarte = codeTarifNom["CL012"]; // nom code-tarif/code-carte
-                                                        break;
-                                                    case "CL014":
-                                                        DesignationCarte = codeTarifNom["CL014"];
-                                                        break;
-                                                    case "CL015":
-                                                        DesignationCarte = codeTarifNom["CL015"];
-                                                        break;
-                                                    case "CL006":
-                                                        DesignationCarte = codeTarifNom["CL006"];
-                                                        break;
-                                                    case "CL007":
-                                                        DesignationCarte = codeTarifNom["CL007"];
-                                                        break;
-
-                                                    case "PR011":
-                                                        DesignationCarte = codeTarifNom["PR011"];
-                                                        break;
-                                                    case "PR012":
-                                                        DesignationCarte = codeTarifNom["PR012"];
-                                                        break;
-                                                    case "PR013":
-                                                        DesignationCarte = codeTarifNom["PR013"];
-                                                        break;
-                                                    case "PR016":
-                                                        DesignationCarte = codeTarifNom["PR016"];
-                                                        break;
-                                                    case "PR005":
-                                                        DesignationCarte = codeTarifNom["PR005"];
-                                                        break;
-                                                    case "PR006":
-                                                        DesignationCarte = codeTarifNom["PR006"];
-                                                        break;
-                                                    case "PR007":
-                                                        DesignationCarte = codeTarifNom["PR007"];
-                                                        break;
-
-                                                    case "C3011":
-                                                        DesignationCarte = codeTarifNom["C3011"];
-                                                        break;
-                                                    case "C3012":
-                                                        DesignationCarte = codeTarifNom["C3012"];
-                                                        break;
-                                                    case "C3016":
-                                                        DesignationCarte = codeTarifNom["C3016"];
-                                                        break;
-                                                    case "C3006":
-                                                        DesignationCarte = codeTarifNom["C3006"];
-                                                        break;
-                                                    case "C3007":
-                                                        DesignationCarte = codeTarifNom["C3007"];
-                                                        break;
-
-                                                    case "EX011":
-                                                        DesignationCarte = codeTarifNom["EX011"];
-                                                        break;
-                                                    case "EX012":
-                                                        DesignationCarte = codeTarifNom["EX012"];
-                                                        break;
-                                                    case "EX013":
-                                                        DesignationCarte = codeTarifNom["EX013"];
-                                                        break;
-                                                    case "EX016":
-                                                        DesignationCarte = codeTarifNom["EX016"];
-                                                        break;
-                                                    case "EX005":
-                                                        DesignationCarte = codeTarifNom["EX005"];
-                                                        break;
-                                                    case "EX006":
-                                                        DesignationCarte = codeTarifNom["EX006"];
-                                                        break;
-                                                    case "EX007":
-                                                        DesignationCarte = codeTarifNom["EX007"];
-                                                        break;
-
-                                                    default:
-                                                        DesignationCarte = "Nom inconnu";
-                                                        break;
-                                                }
-
-                                                switch (apprint.CodeCarte)
-                                                {
-                                                    case "007":
-                                                        prixMensuelCarte = cartePrix["007"];
-                                                        break;
-                                                    case "012":
-                                                        prixMensuelCarte = cartePrix["012"];
-                                                        break;
-                                                    case "006":
-                                                        prixMensuelCarte = cartePrix["006"];
-                                                        break;
-                                                    case "011":
-                                                        prixMensuelCarte = cartePrix["011"];
-                                                        break;
-                                                    case "016":
-                                                        prixMensuelCarte = cartePrix["016"];
-                                                        break;
-                                                    default:
-                                                        prixMensuelCarte = 0;
-                                                        break;
-                                                }
-
-                                                bkmvtis.Add(new Bkmvti
-                                                {
-                                                    NumeroCompte = numeroCompte,
-                                                    DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte!.Value, DateTimeKind.Utc),
-                                                    DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte, DateTimeKind.Utc),
-                                                    CodeTarif = codeTarifComplet,
-                                                    CodeCarte = apprint.CodeCarte!,
-                                                    DesignationCarte = DesignationCarte,
-                                                    startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
-                                                    endPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou 
-                                                    TypeMag = typeMagResult.Id,
-                                                    CodeIN = "IN3",
-                                                    CodeDevise = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(9, 3),
-                                                    EstActif = apprint.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
-                                                    CodeAgence = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
-                                                    TypeBeneficiaire = "AUTO",
-                                                    ReferenceBeneficiaire = 691228,
-                                                    CleBeneficiaire = 46,
-                                                    DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
-                                                    PrixUnitCarte = prixMensuelCarte * (nbMois ?? 1), // prix mensuel de la carte associée ou pas à un pack
-                                                    ReferenceOperation = "RVSA" + start.ToString("yy") + start.Month.ToString("D2") + start.Day.ToString("D2"),
-                                                    CodeOperation = "C",
-                                                    CodeEmetteur = "FACSER",
-                                                    IndicateurDomiciliation = "N",
-                                                    LibelleCarte = BuildLibelleCarte(apprint.EstActifCodeTarifNumeroCompte, apprint.CodeCarte, startPeriod),
-                                                    Carte = apprint.NumCarte!,
-                                                    Sequence = "001",
-
-                                                });
-                                            }
-                                        //}
-
-                                    }
+                                    //}
                                 }
 
                             }
@@ -451,10 +329,210 @@ namespace SYSGES_MAGs.Services
                             }
 
 
-                        } 
+                        }
+
+                        //long magClientPlusUneCarte = 0;
+
+                        foreach (var client in clientPlusUneCarte)
+                        {
+                            var ncp = client.Key;
+                            var cartesClient = client.Value;
+
+                            if (cartesClient.Count <= 1)
+                            {
+                                continue;
+                            }
+
+                            // vu que c'est un meme compte client, je recupère le ncp depuis n'importe quel index.
+                            cliCartePackage = await _bkPrdCliRepository.GetByNcpAsync(cartesClient[0].DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(12));
+
+                            // vérifie si le client à au moins une carte aligner au package
+                            bool hasCoherence = cartesClient.Any(c =>
+                                cartePackage.ContainsKey(c.CodeCarte!) &&
+                                cartePackage[c.CodeCarte!] == cliCartePackage!.cpack
+                            );
+
+                            // vérifie si le client à au moins une carte non aligner au package
+                            bool hasIncoherence = cartesClient.Any(c =>
+                                cartePackage.ContainsKey(c.CodeCarte!) &&
+                                cartePackage[c.CodeCarte!] != cliCartePackage!.cpack
+                            );
+
+                            if (hasCoherence)
+                            {
+                                foreach (var carte in cartesClient)
+                                {
+                                    var p1 = new Periode(
+                                        startPeriod,
+                                        endPeriod
+                                    );
+
+                                    var p2 = new Periode(
+                                        GetDateCreationCarte(carte)!.Value,
+                                        endPeriod
+                                    );
+
+                                    // le minimum selectionné entre la période en cours et la carte valide
+                                    var minPeriodSelected = MinPeriode(p1, p2);
+
+                                    int duree = Math.Max(
+                                        1, minPeriodSelected != null
+                                            ? NombreMois(minPeriodSelected.Debut, minPeriodSelected.Fin) ?? 0 : 0
+                                    );
+
+                                    long total = duree * cartePrix[carte.CodeCarte!];
+
+                                    string codeTarifComplet = BuildCodeTarifComplet(carte.EstActifCodeTarifNumeroCompte, carte.CodeCarte);
+
+                                    string DesignationCarte = "";
+
+                                    switch (codeTarifComplet)
+                                    {
+                                        case "CL012":
+                                            DesignationCarte = codeTarifNom["CL012"]; // nom code-tarif/code-carte
+                                            break;
+                                        case "CL014":
+                                            DesignationCarte = codeTarifNom["CL014"];
+                                            break;
+                                        case "CL015":
+                                            DesignationCarte = codeTarifNom["CL015"];
+                                            break;
+                                        case "CL006":
+                                            DesignationCarte = codeTarifNom["CL006"];
+                                            break;
+                                        case "CL007":
+                                            DesignationCarte = codeTarifNom["CL007"];
+                                            break;
+
+                                        case "PR011":
+                                            DesignationCarte = codeTarifNom["PR011"];
+                                            break;
+                                        case "PR012":
+                                            DesignationCarte = codeTarifNom["PR012"];
+                                            break;
+                                        case "PR013":
+                                            DesignationCarte = codeTarifNom["PR013"];
+                                            break;
+                                        case "PR016":
+                                            DesignationCarte = codeTarifNom["PR016"];
+                                            break;
+                                        case "PR005":
+                                            DesignationCarte = codeTarifNom["PR005"];
+                                            break;
+                                        case "PR006":
+                                            DesignationCarte = codeTarifNom["PR006"];
+                                            break;
+                                        case "PR007":
+                                            DesignationCarte = codeTarifNom["PR007"];
+                                            break;
+
+                                        case "C3011":
+                                            DesignationCarte = codeTarifNom["C3011"];
+                                            break;
+                                        case "C3012":
+                                            DesignationCarte = codeTarifNom["C3012"];
+                                            break;
+                                        case "C3016":
+                                            DesignationCarte = codeTarifNom["C3016"];
+                                            break;
+                                        case "C3006":
+                                            DesignationCarte = codeTarifNom["C3006"];
+                                            break;
+                                        case "C3007":
+                                            DesignationCarte = codeTarifNom["C3007"];
+                                            break;
+
+                                        case "EX011":
+                                            DesignationCarte = codeTarifNom["EX011"];
+                                            break;
+                                        case "EX012":
+                                            DesignationCarte = codeTarifNom["EX012"];
+                                            break;
+                                        case "EX013":
+                                            DesignationCarte = codeTarifNom["EX013"];
+                                            break;
+                                        case "EX016":
+                                            DesignationCarte = codeTarifNom["EX016"];
+                                            break;
+                                        case "EX005":
+                                            DesignationCarte = codeTarifNom["EX005"];
+                                            break;
+                                        case "EX006":
+                                            DesignationCarte = codeTarifNom["EX006"];
+                                            break;
+                                        case "EX007":
+                                            DesignationCarte = codeTarifNom["EX007"];
+                                            break;
+
+                                        default:
+                                            DesignationCarte = "Nom inconnu";
+                                            break;
+                                    }
+
+                                    switch (carte.CodeCarte)
+                                    {
+                                        case "007":
+                                            prixMensuelCarte = cartePrix["007"];
+                                            break;
+                                        case "012":
+                                            prixMensuelCarte = cartePrix["012"];
+                                            break;
+                                        case "006":
+                                            prixMensuelCarte = cartePrix["006"];
+                                            break;
+                                        case "011":
+                                            prixMensuelCarte = cartePrix["011"];
+                                            break;
+                                        case "016":
+                                            prixMensuelCarte = cartePrix["016"];
+                                            break;
+                                        default:
+                                            prixMensuelCarte = 0;
+                                            break;
+                                    }
+
+
+
+                                    bkmvtis.Add(new Bkmvti
+                                    {
+                                        NumeroCompte = numeroCompte,
+                                        DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte.Value.LocalDateTime, DateTimeKind.Utc),
+                                        DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte!.Value.LocalDateTime, DateTimeKind.Utc),
+                                        CodeTarif = codeTarifComplet,
+                                        CodeCarte = carte.CodeCarte!,
+                                        DesignationCarte = DesignationCarte,
+                                        startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                                        endPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou 
+                                        TypeMag = typeMagResult.Id,
+                                        CodeIN = "IN3",
+                                        CodeDevise = carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(9, 3),
+                                        EstActif = carte.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
+                                        CodeAgence = carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
+                                        TypeBeneficiaire = "AUTO",
+                                        ReferenceBeneficiaire = 691228,
+                                        CleBeneficiaire = 46,
+                                        DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                                        PrixUnitCarte = duree * cartePrix[carte.CodeCarte!], // prix mensuel de la carte associée ou pas à un pack
+                                        ReferenceOperation = "RVSA" + start.ToString("yy") + start.Month.ToString("D2") + start.Day.ToString("D2"),
+                                        CodeOperation = "C",
+                                        CodeEmetteur = "FACSER",
+                                        IndicateurDomiciliation = "N",
+                                        LibelleCarte = BuildLibelleCarte(carte.EstActifCodeTarifNumeroCompte, carte.CodeCarte, startPeriod),
+                                        Carte = carte.NumCarte!,
+                                        Sequence = "001",
+
+                                    });
+
+
+                                }
+                            }
+                        }
+
+
+
                         await _bkmvtiRepository.SaveBkmvtiAsync(bkmvtis);
                         await _emailService.SendEmailAsync(
-                             _httpContextAccessor.HttpContext?.User?.Identity?.Name!,
+                            "valdesfeutseu@gmail.com",  //_httpContextAccessor.HttpContext?.User?.Identity?.Name!, // ceci correspond à l'adresse exacte de l'utilisateur connecté
                             "Notification MAG",
                             "<h3>Votre traitement est terminé</h3>"
                         );
@@ -478,7 +556,7 @@ namespace SYSGES_MAGs.Services
                 return new ServiceResult<string>
                 {
                     Success = true,
-                    Message = "Manque à gagner enregistrer avec succès!!!",
+                    Message = "Manque à gagner enregistré avec succès!!!",
 
                 };
 
@@ -499,6 +577,19 @@ namespace SYSGES_MAGs.Services
 
         }
 
+        Periode MinPeriode(Periode p1, Periode p2)
+        {
+            // p2 est incluse dans p1 => p2 est le min
+            if (p2.Debut >= p1.Debut && p2.Fin <= p1.Fin)
+                return p2;
+
+            // p1 est incluse dans p2 => p1 est le min
+            if (p1.Debut >= p2.Debut && p1.Fin <= p2.Fin)
+                return p1;
+
+            // Sinon : pas de relation d'inclusion claire
+            return null;
+        }
         // Helper: construit la clé complète du tarif (préfixe + code carte)
         private string BuildCodeTarifComplet(string? estActifCodeTarifNumeroCompte, string? codeCarte)
         {
@@ -525,6 +616,50 @@ namespace SYSGES_MAGs.Services
                 _logger.LogWarning("Libellé tarif introuvable pour la clé: {Key}", key);
                 return $"Ext. Nom inconnu {startPeriod.ToString("MMM", new CultureInfo("fr-FR"))} {startPeriod.Year} ";
             }
+        }
+
+        public DateTimeOffset? GetDateCreationCarte(Apprints apprint)
+        {
+            // EXTRACTION DE LA DATE DE CREATION DE LA CARTE
+            StringBuilder strbuilderdatecreation = new StringBuilder();
+            var dateCreationCarteTransform = apprint.DateCreationCarte;
+            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(4, 2));
+            strbuilderdatecreation.Append("/");
+            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(2, 2));
+            strbuilderdatecreation.Append("/");
+            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(0, 2));
+
+            string dCreationCarte = strbuilderdatecreation.ToString();
+
+            DateTime? dateCreationCarte = null;
+
+            // Tentative de conversion
+            if (DateTime.TryParse(dCreationCarte, out DateTime parsedDate))
+            {
+                dateCreationCarte = parsedDate;
+                return dateCreationCarte;
+            }
+            else
+            {
+                _logger.LogInformation("date de création : " + dateCreationCarte);
+
+                return null;
+            }
+
+        }
+
+        public DateTimeOffset? getDateValiditeCarte(Apprints apprint)
+        {
+            // EXTRACTION DE LA DATE DE VALIDITE DE LA CARTE
+            var dateValiditeAgenceCodeDeviseNumeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte;
+            var annee = int.Parse(dateValiditeAgenceCodeDeviseNumeroCompte!.Substring(0, 2));
+            var mois = int.Parse(dateValiditeAgenceCodeDeviseNumeroCompte.Substring(2, 2));
+            annee += 2000;
+            _logger.LogInformation("date de validite carte : " + mois + "/" + annee);
+            // Création de la date avec le 1er jour du mois
+            DateTime dateValiditeCarte = new DateTime(annee, mois, 1);
+            _logger.LogInformation("date de validite carte : " + dateValiditeCarte);
+            return dateValiditeCarte; 
         }
 
         public Apprints ConvertTxtToApprint(string ligne, long numLigne)
@@ -555,36 +690,7 @@ namespace SYSGES_MAGs.Services
 
         }
 
-        //public Bkmvti ConvertApprintToBkmvti(Apprints apprints, BkPrdCliDto bkPrdCliDto)
-        //{
-
-        //    return new Bkmvti
-        //    {
-        //        CodeAgence = apprints.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(4, 5),
-        //        CodeDevise = apprints.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(9, 3),
-        //        NumeroCompte = apprints.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(12),
-        //        DateValiditeCarte = DateTime.ParseExact(apprints.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(0, 4), "yyMM", CultureInfo.InvariantCulture),
-        //        DateCreationCarte = DateTime.ParseExact(apprints.DateCreationCarte, "yyMMdd", CultureInfo.InvariantCulture),
-        //        EstActif = apprints.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
-        //        CodeCarte = apprints.CodeCarte!,
-        //        Sequence = "001",
-        //        CodeIN = "IN3",
-        //        TypeBeneficiaire = "AUTO",
-        //        ReferenceBeneficiaire = 691228,
-        //        CleBeneficiaire = 46,
-        //        DatePrelevement = DateTime.ParseExact("2025-01-31", "yyyy-MM-dd", CultureInfo.InvariantCulture),
-        //        PrixUnitCarte = 5000, // prix mensuel de la carte associée ou pas à un pack
-        //        ReferenceOperation = "RVSA250",
-        //        CodeOperation = "C",
-        //        CodeEmetteur = "FACSER",
-        //        IndicateurDomiciliation = "N",
-        //        LibelleCarte = "Ext. Horizon jan. 2025/ Redev Horizon avr. 2025",
-        //        Carte = apprints.NumCarte!,
-        //        CodeTarif = apprints.EstActifCodeTarifNumeroCompte!.Substring(1, 2),
-
-        //    };
-
-        //}
+        
 
         public byte[] GenerateFile(List<Bkmvti> bkmvtis)
         {
@@ -652,12 +758,8 @@ namespace SYSGES_MAGs.Services
 
             return string.Join("|", bkmvti);
         }
-
-        // ... (les autres méthodes TxtToExcel, GetComptesActifs, etc. restent inchangées)
-        // Note: dans TxtToExcel j'ai laissé les switch existants pour remplir worksheet.Cells[row,8]
-        // et remplacé les accès à cartePrix["Code inconnu"] par un fallback numérique ou "#N/A".
-
-        int? NombreMois(DateTime? dateDebut, DateTime? dateFin)
+ 
+        int? NombreMois(DateTimeOffset? dateDebut, DateTimeOffset? dateFin)
         {
             return (dateFin?.Year - dateDebut?.Year) * 12 + (dateFin?.Month - dateDebut?.Month);
         }
@@ -705,7 +807,7 @@ namespace SYSGES_MAGs.Services
             return comptesActif;
         }
 
-        public Dictionary<string, ComptesOuvertsResponse> GetComptesOuvertResponse(ExcelWorksheet worksheetCompteOuvert)
+        public Dictionary<string, ComptesOuvertsResponse> GetComptesOuvert(ExcelWorksheet worksheetCompteOuvert)
         {
             var comptesOuvert = new Dictionary<string, ComptesOuvertsResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
@@ -727,7 +829,7 @@ namespace SYSGES_MAGs.Services
             return comptesOuvert;
         }
 
-        public Dictionary<string, DateDsouPackEchuResponse> GetDsouPackEchuResponse(ExcelWorksheet worksheetDsouPackEchu)
+        public Dictionary<string, DateDsouPackEchuResponse> GetDsouPackEchu (ExcelWorksheet worksheetDsouPackEchu)
         {
             var dateDsouPackEchu = new Dictionary<string, DateDsouPackEchuResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
@@ -750,7 +852,7 @@ namespace SYSGES_MAGs.Services
             return dateDsouPackEchu;
         }
 
-        public Dictionary<string, HistCptDebiteRedevCarteResponse> GetHistCptDebiteRedevCarteResponse(ExcelWorksheet worksheetHistCptDebiteRedev)
+        public Dictionary<string, HistCptDebiteRedevCarteResponse> GetHistCptDebiteRedevCarte (ExcelWorksheet worksheetHistCptDebiteRedev)
         {
             var histCptDebiteRedevCarte = new Dictionary<string, HistCptDebiteRedevCarteResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
@@ -772,7 +874,7 @@ namespace SYSGES_MAGs.Services
             return histCptDebiteRedevCarte;
         }
 
-        public Dictionary<string, PackagesActifsResponse> GetPackagesActifsResponse(ExcelWorksheet worksheetPackActif)
+        public Dictionary<string, PackagesActifsResponse> GetPackagesActifs (ExcelWorksheet worksheetPackActif)
         {
             var packActif = new Dictionary<string, PackagesActifsResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête

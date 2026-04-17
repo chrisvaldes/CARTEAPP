@@ -40,6 +40,7 @@ public class TypeMagRepository : ITypeMagRepository
                 DesignationCarte = g.First().DesignationCarte,
                 MontantTotal = g.Sum(x => x.PrixUnitCarte)
             })
+            .AsNoTracking()
             .OrderByDescending(x => x.MontantTotal)
             .ToListAsync();
 

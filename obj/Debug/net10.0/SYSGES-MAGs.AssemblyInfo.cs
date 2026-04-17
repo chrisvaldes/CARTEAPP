@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SYSGES-MAGs")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1587d58e6a78c4a32973d834f583b6afe1ad6eac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a58d441b13e66bd18e4ebaea1244d1d686d95bda")]
 [assembly: System.Reflection.AssemblyProductAttribute("SYSGES-MAGs")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SYSGES-MAGs")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

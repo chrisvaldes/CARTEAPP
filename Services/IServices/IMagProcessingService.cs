@@ -9,10 +9,10 @@ namespace SYSGES_MAGs.Services.IServices
     {
         Task<ServiceResult<string>> ProcessTxtExcelFiles(IFormFile apprintFile, IFormFile openAccountFile, IFormFile activeAccount, IFormFile dateLastSouPackEchuFile, IFormFile activePackageFile, IFormFile accountHisDebiteByRedevCardFile, string typeMag, DateTime startPeriod, DateTime endPeriod);
         Dictionary<string, ComptesActifsResponse>  GetComptesActifs(ExcelWorksheet worksheetCompteActif);
-        Dictionary<string, ComptesOuvertsResponse> GetComptesOuvertResponse(ExcelWorksheet worksheetCompteOuvert);
-        Dictionary<string, DateDsouPackEchuResponse> GetDsouPackEchuResponse(ExcelWorksheet worksheetDsouPackEchu);
-        Dictionary<string, HistCptDebiteRedevCarteResponse> GetHistCptDebiteRedevCarteResponse(ExcelWorksheet worksheetHistCptDebiteRedev);
-        Dictionary<string, PackagesActifsResponse> GetPackagesActifsResponse(ExcelWorksheet worksheetPackActif);
+        Dictionary<string, ComptesOuvertsResponse> GetComptesOuvert(ExcelWorksheet worksheetCompteOuvert);
+        Dictionary<string, DateDsouPackEchuResponse> GetDsouPackEchu (ExcelWorksheet worksheetDsouPackEchu);
+        Dictionary<string, HistCptDebiteRedevCarteResponse> GetHistCptDebiteRedevCarte (ExcelWorksheet worksheetHistCptDebiteRedev);
+        Dictionary<string, PackagesActifsResponse> GetPackagesActifs(ExcelWorksheet worksheetPackActif);
         byte[] TxtToExcel(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin);
         byte[] TxtToBkmvti(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin);
         byte[] GenerateFile(List<Bkmvti> bkmvtis);

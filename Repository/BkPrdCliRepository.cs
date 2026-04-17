@@ -21,6 +21,7 @@ namespace SYSGES_MAGs.Repository
                .Select(x => new BkPrdCliDto
                {
                    cpro = x.cpro,
+                   cpack = x.cpack,
                    ncp = x.ncp,
                    ddsou = x.ddsou,
                    dfsou = x.dfsou,

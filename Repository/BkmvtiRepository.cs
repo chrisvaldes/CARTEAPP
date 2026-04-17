@@ -44,6 +44,7 @@ namespace SYSGES_MAGs.Repository
                     CodeTarif = x.CodeTarif,
                     CodeCarte = x.CodeCarte
                 })
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -53,7 +54,11 @@ namespace SYSGES_MAGs.Repository
             await _dbContext.SaveChangesAsync();
             return bkmvtis; 
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="typeMagId"></param>
+        /// <returns></returns>
         public async Task<List<BkmvtiSyntheseDto>> GetSyntheseByTypeMagAsync(Guid typeMagId)
         {
             return await _dbContext.Bkmvtis
@@ -66,6 +71,7 @@ namespace SYSGES_MAGs.Repository
                     DesignationCarte = g.First().DesignationCarte,
                     MontantTotal = g.Sum(x => x.PrixUnitCarte),
                 })
+                .AsNoTracking()
                 .OrderByDescending(x => x.MontantTotal)
                 .ToListAsync();
         }

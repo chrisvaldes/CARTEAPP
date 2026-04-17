@@ -36,7 +36,7 @@ namespace SYSGES_MAGs.Repository
 
         public async Task<IEnumerable<Profil>> GetAll()
         {
-            return await _context.Profiles.ToListAsync();
+            return await _context.Profiles.AsNoTracking().ToListAsync();
         }
 
         public async Task<Profil?> GetByIdAsync(Guid id)
