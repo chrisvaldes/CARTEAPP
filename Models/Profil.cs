@@ -22,5 +22,12 @@ namespace SYSGES_MAGs.Models
         [Required(ErrorMessage = "Le statut est obligatoire")]
         [RegularExpression("Actif|Inactif", ErrorMessage = "Statut invalide")]
         public string Status { get; set; }
+        // Navigation
+        //public ICollection<ProfilRole> ProfilRoles { get; set; }
+        //public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        //public DateTimeOffset CreatedBy { get; set; } = DateTimeOffset.UtcNow;
+
+        //public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+
     }
 }

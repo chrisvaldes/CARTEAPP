@@ -45,13 +45,72 @@ namespace SYSGES_MAGs.Services
         Dictionary<string, DateDsouPackEchuResponse> dateDersouPackEchus = new Dictionary<string, DateDsouPackEchuResponse>();
         Dictionary<string, HistCptDebiteRedevCarteResponse> histCptDebiteRedevCartes = new Dictionary<string, HistCptDebiteRedevCarteResponse>();
         Dictionary<string, PackagesActifsResponse> packActifs = new Dictionary<string, PackagesActifsResponse>();
-        BkPrdCliDto cliCartePackage = new BkPrdCliDto();
+        List<BkPrdCliDto> cliCartePackage ;
         string numeroCompte = "";
         //// EXTRACTION DE LA DATE DE CREATION DE LA CARTE 
         DateTimeOffset? dateCreationCarte;
 
         // Création de la date avec le 1er jour du mois
         DateTimeOffset? dateValiditeCarte;
+
+        public List<CartePackageCode> getCodeCarteByNcp(Dictionary<string, List<Apprints>> clientCartes, string ncp)
+        {
+            var liste=clientCartes.FirstOrDefault(c => c.Key == ncp).Value;
+            var cartePackageCodes = new List<CartePackageCode>();
+            if (liste != null)
+            {
+                foreach (var c in liste)
+                {
+                    cartePackageCodes.Add(new CartePackageCode
+                    {
+                        CodeCarte = c.CodeCarte,
+                        Ncp = ncp
+                    });
+                }
+            }
+
+            return cartePackageCodes;
+        }
+                
+        public List<CartePackageCode> getBkPrdCliByNcp(List<BkPrdCliDto> clientBkPrd,string ncp)
+        {
+            var cartePackageCodes = new List<CartePackageCode>();
+            var liste = clientBkPrd.Where(c => c.ncpf == ncp).ToList();
+            if (liste != null)
+            {
+                foreach (var c in liste)
+                {
+                    cartePackageCodes.Add(new CartePackageCode
+                    {
+                        CodePackage = c.cpack,
+                        Ncp = ncp
+                    });
+                }
+            }
+
+            return cartePackageCodes;
+        }
+
+
+        public List<CartePackageCode> MergeCodeCarteAndPAckage(List<CartePackageCode> codeCartes, List<CartePackageCode> codePackages)
+        {
+            var mergedList = new List<CartePackageCode>();
+            foreach (var carte in codeCartes)
+            {
+                var matchingPackage = codePackages.FirstOrDefault(p => p.Ncp == carte.Ncp);
+                if (matchingPackage != null)
+                {
+                    mergedList.Add(new CartePackageCode
+                    {
+                        CodeCarte = carte.CodeCarte,
+                        CodePackage = matchingPackage.CodePackage,
+                        Ncp = carte.Ncp
+                    });
+                }
+            }
+            return mergedList;
+        }
+
 
         Dictionary<string, List<Apprints>> clientPlusUneCarte = new Dictionary<string, List<Apprints>>();
 
@@ -106,6 +165,15 @@ namespace SYSGES_MAGs.Services
             {"011", "300007" }, // Carte visa platinum
             {"016", "300008" } // Carte visa infinite
         };
+
+        //Dictionary<string, string> packageCarte = new Dictionary<string, string>
+        //{
+        //    {"300001","012" }, // Carte visa horizon
+        //    {"300007","007" }, // Carte visa classic
+        //    {"300004" ,"006"}, // Carte visa premier
+        //    {"300007","011"  }, // Carte visa platinum
+        //    {"300008","016" } // Carte visa infinite
+        //};
 
         // exlusion des cartes visa free, young, businnes
         string[] cartesExclu = new[] { "014", "015", "005" };
@@ -330,9 +398,9 @@ namespace SYSGES_MAGs.Services
 
 
                         }
-
+                        var listeCliCartePackage = new List<CartePackageCode>();
                         //long magClientPlusUneCarte = 0;
-
+                        var listeCodeCartes= new List<CartePackageCode>();
                         foreach (var client in clientPlusUneCarte)
                         {
                             var ncp = client.Key;
@@ -342,21 +410,46 @@ namespace SYSGES_MAGs.Services
                             {
                                 continue;
                             }
-
+                            // recupérer le numero de compte de la liste
+                            //var numeroCompteClient = cartesClient[0].DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(12);
+                            listeCodeCartes = getCodeCarteByNcp(clientPlusUneCarte, ncp);
                             // vu que c'est un meme compte client, je recupère le ncp depuis n'importe quel index.
-                            cliCartePackage = await _bkPrdCliRepository.GetByNcpAsync(cartesClient[0].DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(12));
+                            // cliCartePackage => carte associé à un package
+                            cliCartePackage = await _bkPrdCliRepository.GetNbOccurenceByNcpAsync(ncp);
+                            listeCliCartePackage = getBkPrdCliByNcp(cliCartePackage, ncp);
+                            
+                            var listeMergedCliCartePackage = MergeCodeCarteAndPAckage(listeCodeCartes, listeCliCartePackage);
 
                             // vérifie si le client à au moins une carte aligner au package
-                            bool hasCoherence = cartesClient.Any(c =>
-                                cartePackage.ContainsKey(c.CodeCarte!) &&
-                                cartePackage[c.CodeCarte!] == cliCartePackage!.cpack
-                            );
+                            //bool hasCoherence = cartesClient.Any(c =>
+                            //{
+                            //    if (!cartePackage.ContainsKey(c.CodeCarte!))
+                            //        return false;
+                                
+                            //    var expected = cartePackage[c.CodeCarte!];
+                                
+                            //    return cliCartePackage.Any(p => p.cpack == expected);
+                            //});
+
+                            bool hasCoherence = listeMergedCliCartePackage.Where(l => cartePackage[l.CodeCarte!] == l.CodePackage).Any();
+
+
+
+                            //bool hasCoherence2 = cartesClient.Where(c => packageCarte!=null && packageCarte.ContainsKey(cartePackage[c.CodeCarte!])).Any() ;
+
+
 
                             // vérifie si le client à au moins une carte non aligner au package
                             bool hasIncoherence = cartesClient.Any(c =>
-                                cartePackage.ContainsKey(c.CodeCarte!) &&
-                                cartePackage[c.CodeCarte!] != cliCartePackage!.cpack
-                            );
+                            {
+                                if (!cartePackage.ContainsKey(c.CodeCarte!))
+                                    return false;
+
+                                var expected = cartePackage[c.CodeCarte!];
+
+                                // incohérence = aucun package correspondant trouvé
+                                return !cliCartePackage.Any(p => p.cpack == expected);
+                            });
 
                             if (hasCoherence)
                             {
@@ -495,7 +588,7 @@ namespace SYSGES_MAGs.Services
 
                                     bkmvtis.Add(new Bkmvti
                                     {
-                                        NumeroCompte = numeroCompte,
+                                        NumeroCompte = ncp,
                                         DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte.Value.LocalDateTime, DateTimeKind.Utc),
                                         DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte!.Value.LocalDateTime, DateTimeKind.Utc),
                                         CodeTarif = codeTarifComplet,

@@ -30,16 +30,17 @@ namespace SYSGES_MAGs.Repository
                    ncpf = x.ncpf, 
                    eta = x.eta, 
                })
-               .FirstOrDefaultAsync(); ;
+               .FirstOrDefaultAsync();
         }
 
         public async Task<List<BkPrdCliDto>> GetNbOccurenceByNcpAsync(string ncp)
         {
             return await _dbContext.bkprdclis
-                           .Where(x => x.ncp == ncp)
+                           .Where(x => x.ncpf == ncp)
                            .Select(x => new BkPrdCliDto
                            {
                                cpro = x.cpro,
+                               cpack = x.cpack,
                                ncp = x.ncp,
                                ddsou = x.ddsou,
                                dfsou = x.dfsou,

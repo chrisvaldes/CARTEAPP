@@ -26,6 +26,11 @@ namespace SYSGES_MAGs.Controllers
             profilDtos = await _profileService.GetAll();
             return View(profilDtos);
         }
+        public async Task<IActionResult> NewProfil()
+        {
+            profilDtos = await _profileService.GetAll();
+            return View("Index", profilDtos);
+        }
 
         [HttpGet]
         [Authorize]
