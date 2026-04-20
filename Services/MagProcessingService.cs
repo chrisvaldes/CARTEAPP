@@ -97,15 +97,19 @@ namespace SYSGES_MAGs.Services
             var mergedList = new List<CartePackageCode>();
             foreach (var carte in codeCartes)
             {
-                var matchingPackage = codePackages.FirstOrDefault(p => p.Ncp == carte.Ncp);
+                var matchingPackage = codePackages.Where(p => p.Ncp == carte.Ncp).ToList();
                 if (matchingPackage != null)
                 {
-                    mergedList.Add(new CartePackageCode
+                    foreach(var mp in matchingPackage)
                     {
-                        CodeCarte = carte.CodeCarte,
-                        CodePackage = matchingPackage.CodePackage,
-                        Ncp = carte.Ncp
-                    });
+                        mergedList.Add(new CartePackageCode
+                        {
+                            CodeCarte = carte.CodeCarte,
+                            CodePackage = mp.CodePackage,
+                            Ncp = carte.Ncp
+                        });
+                    }
+                   
                 }
             }
             return mergedList;
@@ -415,7 +419,10 @@ namespace SYSGES_MAGs.Services
                             listeCodeCartes = getCodeCarteByNcp(clientPlusUneCarte, ncp);
                             // vu que c'est un meme compte client, je recupère le ncp depuis n'importe quel index.
                             // cliCartePackage => carte associé à un package
-                            cliCartePackage = await _bkPrdCliRepository.GetNbOccurenceByNcpAsync(ncp);
+                            var result = packActifs
+                                    .Where(kvp => kvp.Key.Contains(ncp))
+                                    .Select(kvp => kvp.Value)
+                                    .ToList();
                             listeCliCartePackage = getBkPrdCliByNcp(cliCartePackage, ncp);
                             
                             var listeMergedCliCartePackage = MergeCodeCarteAndPAckage(listeCodeCartes, listeCliCartePackage);
