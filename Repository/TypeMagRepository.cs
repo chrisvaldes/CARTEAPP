@@ -57,9 +57,23 @@ public class TypeMagRepository : ITypeMagRepository
         };
     }
 
-    public async Task<TypeMag?> IsTypeMagExist(DateTime startPeriod)
+    /// <summary>
+    /// Cette méthode détermine si un manque à gagner a déjà été récupérer sur une période
+    /// date.
+    /// </summary>
+    /// <remarks>
+    /// La méthode requière une base de données de type TypeMag. 
+    /// period.</remarks>
+    /// <param name="startPeriod">
+    /// Le début de période doit être comparer à la aux élément de la colonne fin de période
+    /// </param>
+    /// <returns>
+    /// Le resultat de la tâche retourne un booléan. s'il existe une enregistrement de PeriodeFin supérieur à la debutPeriod
+    /// alors le manque à gagner à déjà été récupérer sur la période.
+    /// </returns>
+    public async Task<TypeMag?> IsTypeMagExist(DateTime debutPeriod)
     {
-        var startUtc = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc);
+        var startUtc = DateTime.SpecifyKind(debutPeriod, DateTimeKind.Utc);
 
         return await _dbContext.TypeMags
             .FirstOrDefaultAsync(x => x.PeriodeFin > startUtc);

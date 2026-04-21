@@ -5,7 +5,7 @@ namespace SYSGES_MAGs.Repository.IRepository
 {
     public interface IBkmvtiRepository
     {
-        public Task<List<Bkmvti>> BkmvtisByMagType(Guid typeMagId);
+        public Task<List<BkmvtiResult>> BkmvtisByMagType(Guid typeMagId);
         Task<List<BkmvtiSyntheseDto>> GetSyntheseByTypeMagAsync(Guid typeMagId);
         public Task<List<Bkmvti>> SaveBkmvtiAsync(List<Bkmvti> bkmvtis);
     }

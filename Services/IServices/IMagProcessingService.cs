@@ -15,7 +15,7 @@ namespace SYSGES_MAGs.Services.IServices
         Dictionary<string, PackagesActifsResponse> GetPackagesActifs(ExcelWorksheet worksheetPackActif);
         byte[] TxtToExcel(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin);
         byte[] TxtToBkmvti(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin);
-        byte[] GenerateFile(List<Bkmvti> bkmvtis);
+        byte[] GenerateFile(List<BkmvtiResult> bkmvtis);
 
         Task<IEnumerable<TypeMag>> GetAllTypeMagsAsync();
         public Task<TypeMagWithSyntheseDto> GetTypeMagWithSynthese(Guid typeMagId);

@@ -13,38 +13,21 @@ namespace SYSGES_MAGs.Repository
             _dbContext = context;
         }
 
-        public async Task<List<Bkmvti>> BkmvtisByMagType(Guid typeMagId)
+        public async Task<List<BkmvtiResult>> BkmvtisByMagType(Guid typeMagId)
         {
+
+
             return await _dbContext.Bkmvtis
                 .Where(x => x.TypeMag == typeMagId)
-                .Select(x => new Bkmvti
+                .GroupBy(x => x.NumeroCompte)
+                .Select(g => new BkmvtiResult
                 {
-                    Id = x.Id,
-                    CodeAgence = x.CodeAgence,
-                    Sequence = x.Sequence,
-                    CodeIN = x.CodeIN,
-                    CodeDevise = x.CodeDevise,
-                    EstActif = x.EstActif,
-                    NumeroCompte = x.NumeroCompte,
-                    DesignationCarte = x.DesignationCarte,
-                    TypeBeneficiaire = x.TypeBeneficiaire,
-                    ReferenceBeneficiaire = x.ReferenceBeneficiaire,
-                    CleBeneficiaire = x.CleBeneficiaire,
-                    DatePrelevement = x.DatePrelevement,
-                    PrixUnitCarte = x.PrixUnitCarte,
-                    ReferenceOperation = x.ReferenceOperation,
-                    CodeOperation = x.CodeOperation,
-                    CodeEmetteur = x.CodeEmetteur,
-                    IndicateurDomiciliation = x.IndicateurDomiciliation,
-                    TypeMag = x.TypeMag,
-                    LibelleCarte = x.LibelleCarte,
-                    Carte = x.Carte,
-                    DateValiditeCarte = x.DateValiditeCarte,
-                    DateCreationCarte = x.DateCreationCarte,
-                    CodeTarif = x.CodeTarif,
-                    CodeCarte = x.CodeCarte
+                    NumeroCompte = g.Key,
+                    CodeAgence = g.First().CodeAgence,
+                    DatePrelevement = g.First().DatePrelevement,
+                    LibelleCarte = g.First().LibelleCarte,
+                    Total = g.Sum(x => x.PrixUnitCarte)
                 })
-                .AsNoTracking()
                 .ToListAsync();
         }
 

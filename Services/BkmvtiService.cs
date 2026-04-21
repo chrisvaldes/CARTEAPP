@@ -11,7 +11,7 @@ namespace SYSGES_MAGs.Services
         public BkmvtiService(IBkmvtiRepository bkmvtiRepository) {
             _bkmvtiRepository = bkmvtiRepository;
         }
-        public async Task<List<Bkmvti>> BkmvtisByMagType(Guid typeMagId)
+        public async Task<List<BkmvtiResult>> BkmvtisByMagType(Guid typeMagId)
         {
             return await _bkmvtiRepository.BkmvtisByMagType(typeMagId);
         }
