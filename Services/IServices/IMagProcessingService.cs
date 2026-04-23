@@ -12,9 +12,7 @@ namespace SYSGES_MAGs.Services.IServices
         Dictionary<string, ComptesOuvertsResponse> GetComptesOuvert(ExcelWorksheet worksheetCompteOuvert);
         Dictionary<string, DateDsouPackEchuResponse> GetDsouPackEchu (ExcelWorksheet worksheetDsouPackEchu);
         Dictionary<string, HistCptDebiteRedevCarteResponse> GetHistCptDebiteRedevCarte (ExcelWorksheet worksheetHistCptDebiteRedev);
-        Dictionary<string, PackagesActifsResponse> GetPackagesActifs(ExcelWorksheet worksheetPackActif);
-        byte[] TxtToExcel(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin);
-        byte[] TxtToBkmvti(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin);
+        Dictionary<string, PackagesActifsResponse> GetPackagesActifs(ExcelWorksheet worksheetPackActif); 
         byte[] GenerateFile(List<BkmvtiResult> bkmvtis);
 
         Task<IEnumerable<TypeMag>> GetAllTypeMagsAsync();

@@ -7,8 +7,7 @@ using SYSGES_MAGs.Repository.IRepository;
 using SYSGES_MAGs.Services.IServices;
 using System.Collections;
 using System.Globalization;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text; 
 
 namespace SYSGES_MAGs.Services
 {
@@ -20,8 +19,7 @@ namespace SYSGES_MAGs.Services
         private readonly ITypeMagRepository _typeMagRepository;
         private readonly IBkmvtiRepository _bkmvtiRepository;
         private readonly ApplicationDbContext _dbContext;
-        private readonly IEmailService _emailService;
-        public long prixMensuelCarte = 0;
+        private readonly IEmailService _emailService; 
 
         // Injection via constructeur
         public MagProcessingService(
@@ -397,84 +395,7 @@ namespace SYSGES_MAGs.Services
 
                                         var duree = CalculDuree(GetDateCreationCarte(carte.DateCreationCarte)!.Value, startPeriod, endPeriod);
                                         bkmvtis.Add(BuildBkmvti(carte, ncpf, duree, typeMagResult, startPer));
-                                        //// trouver le minimum entre la période d'étude et la période de validité de la carte
-
-                                        //// période d'étude
-                                        //var periodeEtude = new Periode(startPeriod, endPeriod);
-
-                                        //// période de validité de la carte
-                                        //var periodeValiditeCarte = new Periode(
-                                        //    GetDateCreationCarte(carte.DateCreationCarte)!.Value,
-                                        //    endPeriod
-                                        //);
-
-                                        //// Calcul du minimum
-                                        //var minPeriodSelected = MinPeriode(periodeEtude, periodeValiditeCarte);
-
-                                        //// si la différence entre les mois est < 1; prendre 1  mois sinon prendre la différence
-                                        //// entre la fin de la période min et le début de la période min
-                                        //int duree = Math.Max(
-                                        //    1,
-                                        //    minPeriodSelected != null
-                                        //        ? NombreMois(
-                                        //            minPeriodSelected.Debut,
-                                        //            minPeriodSelected.Fin
-                                        //        ) ?? 0
-                                        //        : 0
-                                        //);
-                                        
-                                        ////long total = duree * cartePrix[carte.CodeCarte!];
-                                        //// construction du code de tarification (CL011? C3011...)
-                                        //string codeTarifComplet = BuildCodeTarifComplet(
-                                        //    carte.EstActifCodeTarifNumeroCompte,
-                                        //    carte.CodeCarte
-                                        //);
-                                        //// désignation de la carte (VISA CLASSIC, VISA PREMIER, VISA PLATINUM...)
-                                        //string DesignationCarte = DesignationCartes(
-                                        //    codeTarifComplet
-                                        //);
-                                        //// prix unitaire de la carte
-                                        //prixMensuelCarte = PrixUnitaireCarte(carte.CodeCarte!);
-
-                                        //// ajout d'un enregistrement dans la liste de bkmvtis
-                                        //bkmvtis.Add(
-                                        //    new Bkmvti
-                                        //    {
-                                        //        NumeroCompte = ncpf,
-                                        //        DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte!.Value.LocalDateTime, DateTimeKind.Utc),
-                                        //        DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte!.Value.LocalDateTime, DateTimeKind.Utc),
-                                        //        CodeTarif = codeTarifComplet,
-                                        //        CodeCarte = carte.CodeCarte!,
-                                        //        DesignationCarte = DesignationCarte,
-                                        //        startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
-                                        //        endPeriod = DateTime.SpecifyKind( startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou
-                                        //        TypeMag = typeMagResult.Id,
-                                        //        CodeIN = "IN3",
-                                        //        CodeDevise = carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(9,3),
-                                        //        EstActif = carte.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
-                                        //        CodeAgence = carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
-                                        //        TypeBeneficiaire = "AUTO",
-                                        //        ReferenceBeneficiaire = 691228,
-                                        //        CleBeneficiaire = 46,
-                                        //        DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
-                                        //        PrixUnitCarte = duree * prixMensuelCarte, // prix mensuel de la carte associée ou pas à un pack
-                                        //        ReferenceOperation =
-                                        //            "RVSA"
-                                        //            + start.ToString("yy")
-                                        //            + start.Month.ToString("D2")
-                                        //            + start.Day.ToString("D2"),
-                                        //        CodeOperation = "C",
-                                        //        CodeEmetteur = "FACSER",
-                                        //        IndicateurDomiciliation = "N",
-                                        //        LibelleCarte = BuildLibelleCarte(
-                                        //            carte.EstActifCodeTarifNumeroCompte,
-                                        //            carte.CodeCarte,
-                                        //            startPeriod
-                                        //        ),
-                                        //        Carte = carte.NumCarte!,
-                                        //        Sequence = "001",
-                                        //    }
-                                        //);
+                                         
                                     }
                                 }
                                 else
@@ -934,33 +855,7 @@ namespace SYSGES_MAGs.Services
         {
             return (dateFin?.Year - dateDebut?.Year) * 12 + (dateFin?.Month - dateDebut?.Month);
         }
-
-        public int CalculerIntersection(
-            DateTime? debutA,
-            DateTime? finA,
-            DateTime? debutB,
-            DateTime? finB
-        )
-        {
-            if (!debutA.HasValue || !finA.HasValue || !debutB.HasValue || !finB.HasValue)
-                return 0; // Pas de calcul si une date est manquante
-
-            DateTime debutIntersection = debutA.Value > debutB.Value ? debutA.Value : debutB.Value;
-            DateTime finIntersection = finA.Value < finB.Value ? finA.Value : finB.Value;
-
-            if (debutIntersection > finIntersection)
-                return 0;
-
-            int diffMois =
-                (finIntersection.Year - debutIntersection.Year) * 12
-                + (finIntersection.Month - debutIntersection.Month);
-
-            // On compte le mois en cours si les jours se chevauchent
-            if (finIntersection.Day >= debutIntersection.Day)
-                diffMois++;
-
-            return diffMois;
-        }
+         
 
         public Dictionary<string, ComptesActifsResponse> GetComptesActifs(
             ExcelWorksheet worksheetCompteActif
@@ -970,11 +865,7 @@ namespace SYSGES_MAGs.Services
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
             for (int row = 2; row <= worksheetCompteActif.Dimension.End.Row; row++)
             {
-                string ncp = worksheetCompteActif.Cells[row, 1].Text.Trim();
-                _logger.LogInformation(
-                    $"Max Row worksheetCompteActif : {worksheetCompteActif.Dimension?.End.Row}"
-                );
-                _logger.LogInformation($"Max Col: {worksheetCompteActif.Dimension?.End.Column}");
+                string ncp = worksheetCompteActif.Cells[row, 1].Text.Trim(); 
                 if (!string.IsNullOrEmpty(ncp))
                 {
                     comptesActif[ncp] = new ComptesActifsResponse { ncp = ncp };
@@ -990,11 +881,7 @@ namespace SYSGES_MAGs.Services
             var comptesOuvert = new Dictionary<string, ComptesOuvertsResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
             for (int row = 2; row <= worksheetCompteOuvert.Dimension.End.Row; row++)
-            {
-                _logger.LogInformation(
-                    $"Max Row worksheetCompteOuvert: {worksheetCompteOuvert.Dimension?.End.Row}"
-                );
-                _logger.LogInformation($"Max Col: {worksheetCompteOuvert.Dimension?.End.Column}");
+            { 
                 string ncp = worksheetCompteOuvert.Cells[row, 1].Text.Trim();
                 if (!string.IsNullOrEmpty(ncp))
                 {
@@ -1015,11 +902,7 @@ namespace SYSGES_MAGs.Services
             var dateDsouPackEchu = new Dictionary<string, DateDsouPackEchuResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
             for (int row = 2; row <= worksheetDsouPackEchu.Dimension.End.Row; row++)
-            {
-                _logger.LogInformation(
-                    $"Max Row worksheetDsouPackEchu : {worksheetDsouPackEchu.Dimension?.End.Row}"
-                );
-                _logger.LogInformation($"Max Col: {worksheetDsouPackEchu.Dimension?.End.Column}");
+            { 
                 string ncpf = worksheetDsouPackEchu.Cells[row, 1].Text.Trim();
 
                 if (
@@ -1048,12 +931,6 @@ namespace SYSGES_MAGs.Services
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
             for (int row = 2; row <= worksheetHistCptDebiteRedev.Dimension.End.Row; row++)
             {
-                _logger.LogInformation(
-                    $"Max Row worksheetHistCptDebiteRedev : {worksheetHistCptDebiteRedev.Dimension?.End.Row}"
-                );
-                _logger.LogInformation(
-                    $"Max Col: {worksheetHistCptDebiteRedev.Dimension?.End.Column}"
-                );
                 string ncp = worksheetHistCptDebiteRedev.Cells[row, 1].Text.Trim();
                 if (!string.IsNullOrEmpty(ncp))
                 {
@@ -1073,12 +950,8 @@ namespace SYSGES_MAGs.Services
         {
             var packActif = new Dictionary<string, PackagesActifsResponse>();
             // commencer par la ligne 2 si la ligne 1 est l'en-tête
-            for (int row = 2; row <= worksheetPackActif.Dimension.End.Row; row++)
-            {
-                _logger.LogInformation(
-                    $"Max Row worksheetPackActif : {worksheetPackActif.Dimension?.End.Row}"
-                );
-                _logger.LogInformation($"Max Col: {worksheetPackActif.Dimension?.End.Column}");
+            for (int row = 2; row <= worksheetPackActif.Dimension!.End.Row; row++)
+            { 
                 string ncpf = worksheetPackActif.Cells[row, 1].Text.Trim();
                 if (!string.IsNullOrEmpty(ncpf))
                 {
@@ -1382,11 +1255,7 @@ namespace SYSGES_MAGs.Services
         //    }
         //}
 
-        public byte[] TxtToBkmvti(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin)
-        {
-            throw new NotImplementedException();
-        }
-
+ 
         public async Task<IEnumerable<TypeMag>> GetAllTypeMagsAsync()
         {
             return await _typeMagRepository.getAllMag();
@@ -1396,10 +1265,6 @@ namespace SYSGES_MAGs.Services
         {
             return await _typeMagRepository.GetTypeMagWithSyntheseAsync(typeMagId);
         }
-
-        public byte[] TxtToExcel(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin)
-        {
-            throw new NotImplementedException();
-        }
+ 
     }
 }
