@@ -5,5 +5,6 @@
         public string ncpf { get; set; } = string.Empty;
         public string cpack { get; set; } = string.Empty;
         public string lib { get; set; } = string.Empty;
+        public DateTime ddsou { get; set; }
     }
 }

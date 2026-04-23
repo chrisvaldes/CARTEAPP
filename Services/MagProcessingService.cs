@@ -1,12 +1,13 @@
-﻿using System.Globalization;
-using System.Text;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using SYSGES_MAGs.Data;
 using SYSGES_MAGs.Models;
 using SYSGES_MAGs.Models.ModelsDto;
 using SYSGES_MAGs.Repository;
 using SYSGES_MAGs.Repository.IRepository;
 using SYSGES_MAGs.Services.IServices;
+using System.Collections;
+using System.Globalization;
+using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SYSGES_MAGs.Services
@@ -62,8 +63,9 @@ namespace SYSGES_MAGs.Services
         // Création de la date avec le 1er jour du mois
         DateTimeOffset? dateValiditeCarte;
 
-        Dictionary<string, List<Apprints>> clientPlusUneCarte =
-            new Dictionary<string, List<Apprints>>();
+        Dictionary<string, List<Apprints>> clientPlusUneCarte = new Dictionary<string, List<Apprints>>();
+
+        Dictionary<string, List<Apprints>> carteAlignerPackage = new Dictionary<string, List<Apprints>>();
 
         Dictionary<string, List<Bkmvti>> fichierComptatble = new Dictionary<string, List<Bkmvti>>();
 
@@ -274,7 +276,7 @@ namespace SYSGES_MAGs.Services
                                     apprint.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(12);
 
                                 //// EXTRACTION DE LA DATE DE CREATION DE LA CARTE
-                                dateCreationCarte = GetDateCreationCarte(apprint);
+                                dateCreationCarte = GetDateCreationCarte(apprint.DateCreationCarte);
 
                                 // Création de la date avec le 1er jour du mois
                                 dateValiditeCarte = getDateValiditeCarte(apprint);
@@ -299,6 +301,8 @@ namespace SYSGES_MAGs.Services
                                         // si le numéro de compte n'exite pas encore, créer une liste pour collecter toutes les occurences
                                         // de carte en fonction de leurs ncpf ou ncp.
                                         clientPlusUneCarte[numeroCompte] = new List<Apprints>();
+                                        carteAlignerPackage[numeroCompte] = new List<Apprints>();
+                                        
                                         // ajout de la première carte dans la liste pour ne pas la perdre.
                                         clientPlusUneCarte[numeroCompte]
                                             .Add(
@@ -371,10 +375,10 @@ namespace SYSGES_MAGs.Services
                             }
 
                             // constituer le couple code package exple "011 => 300001", "016 => 100003"... entre les packages actifs et le ncpf
-                            // afin de vérifier si au moins un code de carte match avec un package.
+                            // afin de vérifier si au moins une carte match avec un package.
                             var result = BuildCartePackageList(cartesClient, packActifs, ncpf);
                              
-                            // si le client à plus d'une carte gratuite avec package alors "if" sinon "else"
+                            // le client à t'il un package?
                             if (result != null)
                             {
 
@@ -382,324 +386,171 @@ namespace SYSGES_MAGs.Services
                                 bool hasAtLeastOneCoherenceCartePackage = result.Any(x =>
                                     cartePackage[x.CodeCarte!] == x.CodePackage
                                 );
-
-                                // vérifie si le client à au moins une carte non aligner au package
-                                // bool hasNotAtLeastOneCoherence = result.Any(x =>
-                                //    cartePackage[x.CodeCarte!] != x.CodePackage
-                                //);
-
-                                // si non alors "if" sinon alors "else"
+                                 
+                                // le client a t'il au moins une carte aligné au package
+                                // => non 
                                 if (!hasAtLeastOneCoherenceCartePackage)
                                 {
-                                    // on parcours la liste des cartes du client
+                                    // Pour Chaque carte du client
                                     foreach (var carte in cartesClient)
                                     {
-                                        // période d'étude
-                                        var periodeEtude = new Periode(startPeriod, endPeriod);
 
-                                        var p2 = new Periode(
-                                            GetDateCreationCarte(carte)!.Value,
-                                            endPeriod
-                                        );
+                                        var duree = CalculDuree(GetDateCreationCarte(carte.DateCreationCarte)!.Value, startPeriod, endPeriod);
+                                        bkmvtis.Add(BuildBkmvti(carte, ncpf, duree, typeMagResult, startPer));
+                                        //// trouver le minimum entre la période d'étude et la période de validité de la carte
 
-                                        // le minimum selectionné entre la période en cours et la carte valide
-                                        var minPeriodSelected = MinPeriode(periodeEtude, p2);
+                                        //// période d'étude
+                                        //var periodeEtude = new Periode(startPeriod, endPeriod);
 
-                                        int duree = Math.Max(
-                                            1,
-                                            minPeriodSelected != null
-                                                ? NombreMois(
-                                                    minPeriodSelected.Debut,
-                                                    minPeriodSelected.Fin
-                                                ) ?? 0
-                                                : 0
-                                        );
+                                        //// période de validité de la carte
+                                        //var periodeValiditeCarte = new Periode(
+                                        //    GetDateCreationCarte(carte.DateCreationCarte)!.Value,
+                                        //    endPeriod
+                                        //);
 
-                                        long total = duree * cartePrix[carte.CodeCarte!];
+                                        //// Calcul du minimum
+                                        //var minPeriodSelected = MinPeriode(periodeEtude, periodeValiditeCarte);
 
-                                        string codeTarifComplet = BuildCodeTarifComplet(
-                                            carte.EstActifCodeTarifNumeroCompte,
-                                            carte.CodeCarte
-                                        );
+                                        //// si la différence entre les mois est < 1; prendre 1  mois sinon prendre la différence
+                                        //// entre la fin de la période min et le début de la période min
+                                        //int duree = Math.Max(
+                                        //    1,
+                                        //    minPeriodSelected != null
+                                        //        ? NombreMois(
+                                        //            minPeriodSelected.Debut,
+                                        //            minPeriodSelected.Fin
+                                        //        ) ?? 0
+                                        //        : 0
+                                        //);
+                                        
+                                        ////long total = duree * cartePrix[carte.CodeCarte!];
+                                        //// construction du code de tarification (CL011? C3011...)
+                                        //string codeTarifComplet = BuildCodeTarifComplet(
+                                        //    carte.EstActifCodeTarifNumeroCompte,
+                                        //    carte.CodeCarte
+                                        //);
+                                        //// désignation de la carte (VISA CLASSIC, VISA PREMIER, VISA PLATINUM...)
+                                        //string DesignationCarte = DesignationCartes(
+                                        //    codeTarifComplet
+                                        //);
+                                        //// prix unitaire de la carte
+                                        //prixMensuelCarte = PrixUnitaireCarte(carte.CodeCarte!);
 
-                                        string DesignationCarte = DesignationCartes(
-                                            codeTarifComplet
-                                        );
-
-                                        prixMensuelCarte = PrixUnitaireCarte(carte.CodeCarte!);
-
-                                        bkmvtis.Add(
-                                            new Bkmvti
-                                            {
-                                                NumeroCompte = ncpf,
-                                                DateCreationCarte = DateTime.SpecifyKind(
-                                                    dateCreationCarte!.Value.LocalDateTime,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                DateValiditeCarte = DateTime.SpecifyKind(
-                                                    dateValiditeCarte!.Value.LocalDateTime,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                CodeTarif = codeTarifComplet,
-                                                CodeCarte = carte.CodeCarte!,
-                                                DesignationCarte = DesignationCarte,
-                                                startPeriod = DateTime.SpecifyKind(
-                                                    startPeriod,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                endPeriod = DateTime.SpecifyKind(
-                                                    startPeriod,
-                                                    DateTimeKind.Utc
-                                                ), // bkPrdCliDto!.ddsou
-                                                TypeMag = typeMagResult.Id,
-                                                CodeIN = "IN3",
-                                                CodeDevise =
-                                                    carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(
-                                                        9,
-                                                        3
-                                                    ),
-                                                EstActif =
-                                                    carte.EstActifCodeTarifNumeroCompte!.Substring(
-                                                        0,
-                                                        1
-                                                    ),
-                                                CodeAgence =
-                                                    carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(
-                                                        4,
-                                                        5
-                                                    ),
-                                                TypeBeneficiaire = "AUTO",
-                                                ReferenceBeneficiaire = 691228,
-                                                CleBeneficiaire = 46,
-                                                DatePrelevement = DateTime.SpecifyKind(
-                                                    startPeriod,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                PrixUnitCarte = duree * prixMensuelCarte, // prix mensuel de la carte associée ou pas à un pack
-                                                ReferenceOperation =
-                                                    "RVSA"
-                                                    + start.ToString("yy")
-                                                    + start.Month.ToString("D2")
-                                                    + start.Day.ToString("D2"),
-                                                CodeOperation = "C",
-                                                CodeEmetteur = "FACSER",
-                                                IndicateurDomiciliation = "N",
-                                                LibelleCarte = BuildLibelleCarte(
-                                                    carte.EstActifCodeTarifNumeroCompte,
-                                                    carte.CodeCarte,
-                                                    startPeriod
-                                                ),
-                                                Carte = carte.NumCarte!,
-                                                Sequence = "001",
-                                            }
-                                        );
+                                        //// ajout d'un enregistrement dans la liste de bkmvtis
+                                        //bkmvtis.Add(
+                                        //    new Bkmvti
+                                        //    {
+                                        //        NumeroCompte = ncpf,
+                                        //        DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte!.Value.LocalDateTime, DateTimeKind.Utc),
+                                        //        DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte!.Value.LocalDateTime, DateTimeKind.Utc),
+                                        //        CodeTarif = codeTarifComplet,
+                                        //        CodeCarte = carte.CodeCarte!,
+                                        //        DesignationCarte = DesignationCarte,
+                                        //        startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                                        //        endPeriod = DateTime.SpecifyKind( startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou
+                                        //        TypeMag = typeMagResult.Id,
+                                        //        CodeIN = "IN3",
+                                        //        CodeDevise = carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(9,3),
+                                        //        EstActif = carte.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
+                                        //        CodeAgence = carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
+                                        //        TypeBeneficiaire = "AUTO",
+                                        //        ReferenceBeneficiaire = 691228,
+                                        //        CleBeneficiaire = 46,
+                                        //        DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                                        //        PrixUnitCarte = duree * prixMensuelCarte, // prix mensuel de la carte associée ou pas à un pack
+                                        //        ReferenceOperation =
+                                        //            "RVSA"
+                                        //            + start.ToString("yy")
+                                        //            + start.Month.ToString("D2")
+                                        //            + start.Day.ToString("D2"),
+                                        //        CodeOperation = "C",
+                                        //        CodeEmetteur = "FACSER",
+                                        //        IndicateurDomiciliation = "N",
+                                        //        LibelleCarte = BuildLibelleCarte(
+                                        //            carte.EstActifCodeTarifNumeroCompte,
+                                        //            carte.CodeCarte,
+                                        //            startPeriod
+                                        //        ),
+                                        //        Carte = carte.NumCarte!,
+                                        //        Sequence = "001",
+                                        //    }
+                                        //);
                                     }
                                 }
                                 else
                                 {
-                                    foreach (var carte in cartesClient)
+                                    var resultat = GetDDSouPackage(packActifs, ncpf);
+                                    var ddsou = resultat.ddsou;
+                                    //var listPeriodePackage = new List<DateTimeOffset>();
+                                     
+
+                                    if (startPer < ddsou)
                                     {
-                                        var p1 = new Periode(startPeriod, endPeriod);
+                                        var maxCartesClientPack = cartesClient.Where(c => GetDateCreationCarte(c.DateCreationCarte)!.Value >= ddsou)
+                                            .OrderBy(c => c.DateCreationCarte).ToList();
 
-                                        var p2 = new Periode(
-                                            GetDateCreationCarte(carte)!.Value,
-                                            endPeriod
-                                        );
+                                        // exple 260210 pour => 10/02/2026
+                                        DateTimeOffset? maxDateCreationCarte = GetDateCreationCarte(maxCartesClientPack[0].DateCreationCarte);
 
-                                        // le minimum selectionné entre la période en cours et la carte valide
-                                        var minPeriodSelected = MinPeriode(p1, p2);
 
-                                        int duree = Math.Max(
-                                            1,
-                                            minPeriodSelected != null
-                                                ? NombreMois(
-                                                    minPeriodSelected.Debut,
-                                                    minPeriodSelected.Fin
-                                                ) ?? 0
-                                                : 0
-                                        );
+                                        foreach (var carte in cartesClient)
+                                        {
 
-                                        long total = duree * cartePrix[carte.CodeCarte!];
+                                            var duree = CalculDuree(GetDateCreationCarte(carte.DateCreationCarte)!.Value, startPeriod, endPeriod);
+                                            var dateCreationCarte = GetDateCreationCarte(carte.DateCreationCarte);
 
-                                        string codeTarifComplet = BuildCodeTarifComplet(
-                                            carte.EstActifCodeTarifNumeroCompte,
-                                            carte.CodeCarte
-                                        );
-
-                                        string DesignationCarte = DesignationCartes(
-                                            codeTarifComplet
-                                        );
-
-                                        prixMensuelCarte = PrixUnitaireCarte(carte.CodeCarte!);
-
-                                        bkmvtis.Add(
-                                            new Bkmvti
+                                            // si la carte ne correspond pas à la carte la plus anciènne apparteneant au package (Tpkg > T)
+                                            if (dateCreationCarte != maxDateCreationCarte)
                                             {
-                                                NumeroCompte = ncpf,
-                                                DateCreationCarte = DateTime.SpecifyKind(
-                                                    dateCreationCarte!.Value.LocalDateTime,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                DateValiditeCarte = DateTime.SpecifyKind(
-                                                    dateValiditeCarte!.Value.LocalDateTime,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                CodeTarif = codeTarifComplet,
-                                                CodeCarte = carte.CodeCarte!,
-                                                DesignationCarte = DesignationCarte,
-                                                startPeriod = DateTime.SpecifyKind(
-                                                    startPeriod,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                endPeriod = DateTime.SpecifyKind(
-                                                    startPeriod,
-                                                    DateTimeKind.Utc
-                                                ), // bkPrdCliDto!.ddsou
-                                                TypeMag = typeMagResult.Id,
-                                                CodeIN = "IN3",
-                                                CodeDevise =
-                                                    carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(
-                                                        9,
-                                                        3
-                                                    ),
-                                                EstActif =
-                                                    carte.EstActifCodeTarifNumeroCompte!.Substring(
-                                                        0,
-                                                        1
-                                                    ),
-                                                CodeAgence =
-                                                    carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(
-                                                        4,
-                                                        5
-                                                    ),
-                                                TypeBeneficiaire = "AUTO",
-                                                ReferenceBeneficiaire = 691228,
-                                                CleBeneficiaire = 46,
-                                                DatePrelevement = DateTime.SpecifyKind(
-                                                    startPeriod,
-                                                    DateTimeKind.Utc
-                                                ),
-                                                PrixUnitCarte = duree * prixMensuelCarte, // prix mensuel de la carte associée ou pas à un pack
-                                                ReferenceOperation =
-                                                    "RVSA"
-                                                    + start.ToString("yy")
-                                                    + start.Month.ToString("D2")
-                                                    + start.Day.ToString("D2"),
-                                                CodeOperation = "C",
-                                                CodeEmetteur = "FACSER",
-                                                IndicateurDomiciliation = "N",
-                                                LibelleCarte = BuildLibelleCarte(
-                                                    carte.EstActifCodeTarifNumeroCompte,
-                                                    carte.CodeCarte,
-                                                    startPeriod
-                                                ),
-                                                Carte = carte.NumCarte!,
-                                                Sequence = "001",
+                                                bkmvtis.Add(BuildBkmvti(carte, ncpf, duree, typeMagResult, startPer)); 
                                             }
-                                        );
+                                        }
+
+
                                     }
+                                    else
+                                    {
+                                        var maxCartesClientPack = cartesClient.Where(c => GetDateCreationCarte(c.DateCreationCarte)!.Value >= startPer)
+                                            .OrderBy(c => c.DateCreationCarte).ToList();
+
+                                        // exple 260210 pour => 10/02/2026
+                                        DateTimeOffset? maxDateCreationCarte = GetDateCreationCarte(maxCartesClientPack[0].DateCreationCarte);
+
+
+
+                                        foreach (var carte in cartesClient)
+                                        {
+
+                                            var duree = CalculDuree(GetDateCreationCarte(carte.DateCreationCarte)!.Value, startPeriod, endPeriod);
+                                            var dateCreationCarte = GetDateCreationCarte(carte.DateCreationCarte);
+
+                                            // si la carte ne correspond pas à la carte la plus anciènne apparteneant au package (Tpkg < T)
+                                            if (dateCreationCarte != maxDateCreationCarte)
+                                            {
+
+                                                bkmvtis.Add(BuildBkmvti(carte, ncpf, duree, typeMagResult, startPer));
+
+                                            }
+                                        }
+                                    }
+                                    // oui, le client à au moins une carte aligner au package
+
+
+
+                                    // la date de créationd de la carte founi par l'apprint est un string donc il faut, la convertir en datetimeoffset
+
+
                                 }
                             }
                             else
                             {
                                 foreach (var carte in cartesClient)
                                 {
-                                    var p1 = new Periode(startPeriod, endPeriod);
 
-                                    var p2 = new Periode(
-                                        GetDateCreationCarte(carte)!.Value,
-                                        endPeriod
-                                    );
+                                    var duree = CalculDuree(GetDateCreationCarte(carte.DateCreationCarte)!.Value, startPeriod, endPeriod);
 
-                                    // le minimum selectionné entre la période en cours et la carte valide
-                                    var minPeriodSelected = MinPeriode(p1, p2);
+                                    bkmvtis.Add(BuildBkmvti(carte, ncpf, duree, typeMagResult, startPer));
 
-                                    int duree = Math.Max(
-                                        1,
-                                        minPeriodSelected != null
-                                            ? NombreMois(
-                                                minPeriodSelected.Debut,
-                                                minPeriodSelected.Fin
-                                            ) ?? 0
-                                            : 0
-                                    );
-
-                                    long total = duree * cartePrix[carte.CodeCarte!];
-
-                                    string codeTarifComplet = BuildCodeTarifComplet(
-                                        carte.EstActifCodeTarifNumeroCompte,
-                                        carte.CodeCarte
-                                    );
-
-                                    string DesignationCarte = DesignationCartes(codeTarifComplet);
-
-                                    prixMensuelCarte = PrixUnitaireCarte(carte.CodeCarte!);
-
-                                    bkmvtis.Add(
-                                        new Bkmvti
-                                        {
-                                            NumeroCompte = ncpf,
-                                            DateCreationCarte = DateTime.SpecifyKind(
-                                                dateCreationCarte!.Value.LocalDateTime,
-                                                DateTimeKind.Utc
-                                            ),
-                                            DateValiditeCarte = DateTime.SpecifyKind(
-                                                dateValiditeCarte!.Value.LocalDateTime,
-                                                DateTimeKind.Utc
-                                            ),
-                                            CodeTarif = codeTarifComplet,
-                                            CodeCarte = carte.CodeCarte!,
-                                            DesignationCarte = DesignationCarte,
-                                            startPeriod = DateTime.SpecifyKind(
-                                                startPeriod,
-                                                DateTimeKind.Utc
-                                            ),
-                                            endPeriod = DateTime.SpecifyKind(
-                                                startPeriod,
-                                                DateTimeKind.Utc
-                                            ), // bkPrdCliDto!.ddsou
-                                            TypeMag = typeMagResult.Id,
-                                            CodeIN = "IN3",
-                                            CodeDevise =
-                                                carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(
-                                                    9,
-                                                    3
-                                                ),
-                                            EstActif =
-                                                carte.EstActifCodeTarifNumeroCompte!.Substring(
-                                                    0,
-                                                    1
-                                                ),
-                                            CodeAgence =
-                                                carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(
-                                                    4,
-                                                    5
-                                                ),
-                                            TypeBeneficiaire = "AUTO",
-                                            ReferenceBeneficiaire = 691228,
-                                            CleBeneficiaire = 46,
-                                            DatePrelevement = DateTime.SpecifyKind(
-                                                startPeriod,
-                                                DateTimeKind.Utc
-                                            ),
-                                            PrixUnitCarte = duree * prixMensuelCarte, // prix mensuel de la carte associée ou pas à un pack
-                                            ReferenceOperation =
-                                                "RVSA"
-                                                + start.ToString("yy")
-                                                + start.Month.ToString("D2")
-                                                + start.Day.ToString("D2"),
-                                            CodeOperation = "C",
-                                            CodeEmetteur = "FACSER",
-                                            IndicateurDomiciliation = "N",
-                                            LibelleCarte = BuildLibelleCarte(
-                                                carte.EstActifCodeTarifNumeroCompte,
-                                                carte.CodeCarte,
-                                                startPeriod
-                                            ),
-                                            Carte = carte.NumCarte!,
-                                            Sequence = "001",
-                                        }
-                                    );
                                 }
                             }
                         }
@@ -760,8 +611,7 @@ namespace SYSGES_MAGs.Services
             string ncpf
         )
         {
-            var result = new List<CartePackageResult>();
-
+            var result = new List<CartePackageResult>(); 
             if (!packActifs.TryGetValue(ncpf, out var pack))
                 return result;
 
@@ -779,6 +629,14 @@ namespace SYSGES_MAGs.Services
             return result;
         }
 
+        public PackagesActifsResponse GetDDSouPackage(Dictionary<string, PackagesActifsResponse> packActifs, string ncpf)
+        {
+            PackagesActifsResponse? result = new PackagesActifsResponse();
+            if (packActifs.TryGetValue(ncpf, out var pack))
+                return result;
+            return result;
+        }
+
         Periode MinPeriode(Periode p1, Periode p2)
         {
             // p2 est incluse dans p1 => p2 est le min
@@ -787,11 +645,88 @@ namespace SYSGES_MAGs.Services
             return p1;
         }
 
-        // Helper: construit la clé complète du tarif (préfixe + code carte)
-        private string BuildCodeTarifComplet(
-            string? estActifCodeTarifNumeroCompte,
-            string? codeCarte
-        )
+        int CalculDuree(DateTimeOffset dateDebutCarte, DateTime startPeriod, DateTime endPeriod)
+        {
+            var p1 = new Periode(startPeriod, endPeriod);
+            var p2 = new Periode(dateDebutCarte, endPeriod);
+
+            var min = MinPeriode(p1, p2);
+
+            return Math.Max(
+                1,
+                min != null ? NombreMois(min.Debut, min.Fin) ?? 0 : 0
+            );
+        }
+
+        Bkmvti BuildBkmvti(Apprints carte, string ncpf, int duree, TypeMag typeMagResult, DateTime startPeriod)
+        {
+            // construction du code de tarification (CL011? C3011...)
+            string codeTarifComplet = BuildCodeTarifComplet(
+                carte.EstActifCodeTarifNumeroCompte,
+                carte.CodeCarte
+            );
+
+            string designationCarte = DesignationCartes(codeTarifComplet);
+
+            long prixMensuelCarte = PrixUnitaireCarte(carte.CodeCarte!);
+             
+            // désignation de la carte (VISA CLASSIC, VISA PREMIER, VISA PLATINUM...)
+            string DesignationCarte = DesignationCartes(
+                codeTarifComplet
+            );
+
+            return new Bkmvti
+            {
+                NumeroCompte = ncpf,
+                DateCreationCarte = DateTime.SpecifyKind(dateCreationCarte!.Value.LocalDateTime, DateTimeKind.Utc),
+                DateValiditeCarte = DateTime.SpecifyKind(dateValiditeCarte!.Value.LocalDateTime, DateTimeKind.Utc),
+                CodeTarif = codeTarifComplet,
+                CodeCarte = carte.CodeCarte!,
+                DesignationCarte = DesignationCarte,
+                startPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                endPeriod = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc), // bkPrdCliDto!.ddsou
+                TypeMag = typeMagResult.Id,
+                CodeIN = "IN3",
+                CodeDevise = carte.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(9, 3),
+                EstActif = carte.EstActifCodeTarifNumeroCompte!.Substring(0, 1),
+                CodeAgence = carte.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(4, 5),
+                TypeBeneficiaire = "AUTO",
+                ReferenceBeneficiaire = 691228,
+                CleBeneficiaire = 46,
+                DatePrelevement = DateTime.SpecifyKind(startPeriod, DateTimeKind.Utc),
+                PrixUnitCarte = duree * prixMensuelCarte, // prix mensuel de la carte associée ou pas à un pack
+                ReferenceOperation =
+                            "RVSA"
+                            + startPeriod.ToString("yy")
+                            + startPeriod.Month.ToString("D2")
+                            + startPeriod.Day.ToString("D2"),
+                CodeOperation = "C",
+                CodeEmetteur = "FACSER",
+                IndicateurDomiciliation = "N",
+                LibelleCarte = BuildLibelleCarte(
+                            carte.EstActifCodeTarifNumeroCompte,
+                            carte.CodeCarte,
+                            startPeriod
+                        ),
+                Carte = carte.NumCarte!,
+                Sequence = "001",
+            };
+        }
+
+        /// <summary>
+        /// Cette fontion à pour but de retourner une concaténation code tarification + code carte 
+        /// qui nous permettre de retourner le livelle de la carte. exple : "visa prémier, visa platinium...)
+        /// </summary>
+        /// <param name="estActifCodeTarifNumeroCompte">
+        /// De ce paramètre, on pourra extraire le code de tarification d'une carte
+        /// </param>
+        /// <param name="codeCarte">
+        /// Ce paramètre concerne le code de la carte (code produit) "011, 016? 006? 007..."
+        /// </param>
+        /// <returns>
+        /// Comme élément de retour "CL011, C3006...
+        /// </returns>
+        private string BuildCodeTarifComplet(  string? estActifCodeTarifNumeroCompte,  string? codeCarte )
         {
             if (
                 string.IsNullOrEmpty(estActifCodeTarifNumeroCompte)
@@ -806,7 +741,13 @@ namespace SYSGES_MAGs.Services
             return prefix + codeCarte;
         }
 
-        // Helper: construit le libellé sécurisé en vérifiant le dictionnaire
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="estActifCodeTarifNumeroCompte"></param>
+        /// <param name="codeCarte"></param>
+        /// <param name="startPeriod"></param>
+        /// <returns></returns>
         private string BuildLibelleCarte(
             string? estActifCodeTarifNumeroCompte,
             string? codeCarte,
@@ -828,16 +769,23 @@ namespace SYSGES_MAGs.Services
             }
         }
 
-        public DateTimeOffset? GetDateCreationCarte(Apprints apprint)
+        /// <summary>
+        /// Cette méthode à pour but de retourner le la date de création de la carte
+        /// </summary>
+        /// <param name="apprint"> ce paramètre correspond à une ligne de l'apprint formé de plusieurs colonnes</param>
+        /// <returns>
+        /// transforme par exemple "260210"
+        /// et retourne "10/02/26"
+        /// </returns>
+        public DateTimeOffset? GetDateCreationCarte (string dNaissanceCarte)
         {
             // EXTRACTION DE LA DATE DE CREATION DE LA CARTE
-            StringBuilder strbuilderdatecreation = new StringBuilder();
-            var dateCreationCarteTransform = apprint.DateCreationCarte;
-            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(4, 2));
+            StringBuilder strbuilderdatecreation = new StringBuilder(); 
+            strbuilderdatecreation.Append(dNaissanceCarte.Substring(4, 2));
             strbuilderdatecreation.Append("/");
-            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(2, 2));
+            strbuilderdatecreation.Append(dNaissanceCarte.Substring(2, 2));
             strbuilderdatecreation.Append("/");
-            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(0, 2));
+            strbuilderdatecreation.Append(dNaissanceCarte.Substring(0, 2));
 
             string dCreationCarte = strbuilderdatecreation.ToString();
 
