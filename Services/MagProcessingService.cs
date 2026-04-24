@@ -375,9 +375,11 @@ namespace SYSGES_MAGs.Services
                             // constituer le couple code package exple "011 => 300001", "016 => 100003"... entre les packages actifs et le ncpf
                             // afin de vérifier si au moins une carte match avec un package.
                             var result = BuildCartePackageList(cartesClient, packActifs, ncpf);
+
+                            bool hasPackage = result.Any();
                              
                             // le client à t'il un package?
-                            if (result != null)
+                            if (!hasPackage)
                             {
 
                                 // le client à au moins une carte aligner au package? 
@@ -408,10 +410,10 @@ namespace SYSGES_MAGs.Services
                                     if (startPer < ddsou)
                                     {
                                         var maxCartesClientPack = cartesClient.Where(c => GetDateCreationCarte(c.DateCreationCarte)!.Value >= ddsou)
-                                            .OrderBy(c => c.DateCreationCarte).ToList();
+                                            .OrderBy(c => c.DateCreationCarte).FirstOrDefault();
 
                                         // exple 260210 pour => 10/02/2026
-                                        DateTimeOffset? maxDateCreationCarte = GetDateCreationCarte(maxCartesClientPack[0].DateCreationCarte);
+                                        DateTimeOffset? maxDateCreationCarte = GetDateCreationCarte(maxCartesClientPack!.DateCreationCarte);
 
 
                                         foreach (var carte in cartesClient)
@@ -432,12 +434,10 @@ namespace SYSGES_MAGs.Services
                                     else
                                     {
                                         var maxCartesClientPack = cartesClient.Where(c => GetDateCreationCarte(c.DateCreationCarte)!.Value >= startPer)
-                                            .OrderBy(c => c.DateCreationCarte).ToList();
+                                            .OrderBy(c => c.DateCreationCarte).FirstOrDefault();
 
                                         // exple 260210 pour => 10/02/2026
-                                        DateTimeOffset? maxDateCreationCarte = GetDateCreationCarte(maxCartesClientPack[0].DateCreationCarte);
-
-
+                                        DateTimeOffset? maxDateCreationCarte = GetDateCreationCarte(maxCartesClientPack!.DateCreationCarte); 
 
                                         foreach (var carte in cartesClient)
                                         {
@@ -965,296 +965,6 @@ namespace SYSGES_MAGs.Services
             }
             return packActif;
         }
-
-        // création du fichier excel
-        //public byte[] TxtToExcel(List<Apprints> apprints, DateTime DateDebut, DateTime DateFin)
-        //{
-        //    try
-        //    {
-        //        using var package = new ExcelPackage();
-        //        using var worksheet = package.Workbook.Worksheets.Add("generate BKMBTI file");
-
-        //        // conversion de la date en mois uniquement
-        //        string moisDebut = DateDebut.ToString("MMMM", new CultureInfo("fr-FR"));
-        //        string moisFin = DateFin.ToString("MMMM", new CultureInfo("fr-FR"));
-
-        //        var nbrMoisPasse = NombreMois(DateDebut, DateFin);
-
-        //        // creation de l'en-tete du fichier excel
-        //        worksheet.Cells[1, 1].Value = "Carte";
-        //        worksheet.Cells[1, 2].Value = "Date validité carte";
-        //        worksheet.Cells[1, 3].Value = "Numéro compte";
-        //        worksheet.Cells[1, 4].Value = "Colonne1";
-        //        worksheet.Cells[1, 5].Value = "Date création carte";
-        //        worksheet.Cells[1, 6].Value = "Code tarif";
-        //        worksheet.Cells[1, 7].Value = "Code carte";
-        //        worksheet.Cells[1, 8].Value = "Nom carte";
-        //        worksheet.Cells[1, 9].Value = "Prix unit carte";
-        //        worksheet.Cells[1, 10].Value = "Max(date creation carte, dfsou package)";
-        //        worksheet.Cells[1, 11].Value = $"MAG {moisDebut}-{moisFin} 2025 (Calcul)";
-        //        worksheet.Cells[1, 12].Value = $"MAG {moisDebut}-{moisFin} 2025_Final";
-        //        worksheet.Cells[1, 13].Value = $"MAG {moisDebut}-{moisFin} / PU";
-        //        worksheet.Cells[1, 14].Value = $"MAG {moisDebut}-{moisFin}";
-        //        worksheet.Cells[1, 15].Value = "Nom embossé";
-        //        worksheet.Cells[1, 16].Value = "Compte fermés";
-        //        worksheet.Cells[1, 17].Value = "Packages actifs rattachés";
-        //        worksheet.Cells[1, 18].Value = "Actif/Inactif";
-        //        worksheet.Cells[1, 19].Value = "Déjà payé entre Jan et Mai";
-        //        worksheet.Cells[1, 20].Value = "Date dernière souscription packages échus";
-        //        worksheet.Cells[1, 21].Value = "Déjà débités entre Jan et Mai";
-        //        worksheet.Cells[1, 22].Value = "Appréciation des débits cumulés cartes";
-        //        worksheet.Cells[1, 23].Value = "Min(DCO)";
-        //        worksheet.Cells[1, 24].Value = "Max(DCO)";
-        //        worksheet.Cells[1, 25].Value = "Date fin souscription packages échus";
-
-        //        // formatage des colonnes 10, 20, 25 en date sinon EPPLUS Excel renverai une autre valeur
-        //        worksheet.Column(10).Style.Numberformat.Format = "dd/MM/yyyy";
-        //        worksheet.Column(20).Style.Numberformat.Format = "dd/MM/yyyy";
-        //        worksheet.Column(25).Style.Numberformat.Format = "dd/MM/yyyy";
-
-        //        int row = 2;
-
-        //        foreach (Apprints apprint in apprints)
-        //        {
-
-        //            // extraction date validite
-        //            StringBuilder strBuilderDateValidite = new StringBuilder();
-        //            var dateValiditeAgenceCodeDeviseNumeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte;
-        //            strBuilderDateValidite.Append(dateValiditeAgenceCodeDeviseNumeroCompte!.Substring(2, 2));
-        //            strBuilderDateValidite.Append("/");
-        //            strBuilderDateValidite.Append(dateValiditeAgenceCodeDeviseNumeroCompte.Substring(0, 2));
-
-        //            var dateValidite = strBuilderDateValidite.ToString();
-
-        //            // extraction date creation carte
-        //            StringBuilder strbuilderdatecreation = new StringBuilder();
-        //            var dateCreationCarteTransform = apprint.DateCreationCarte;
-        //            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(4, 2));
-        //            strbuilderdatecreation.Append("/");
-        //            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(2, 2));
-        //            strbuilderdatecreation.Append("/");
-        //            strbuilderdatecreation.Append(dateCreationCarteTransform.Substring(0, 2));
-
-        //            string dateCreationCarte = strbuilderdatecreation.ToString();
-
-        //            var agence = apprint.DateValiditeAgenceCodeDeviseNumeroCompte!.Substring(4, 5);
-        //            var codeDevise = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(9, 3);
-        //            var numeroCompte = apprint.DateValiditeAgenceCodeDeviseNumeroCompte.Substring(12);
-        //            // extraction client actif
-        //            var estActif = apprint.EstActifCodeTarifNumeroCompte!.Substring(0, 1);
-        //            // extraction code tarif
-        //            var codeTarif = apprint.EstActifCodeTarifNumeroCompte.Substring(1, 2);
-
-        //            // recuperation du non de la carte
-        //            StringBuilder strBNomCarte = new StringBuilder();
-        //            strBNomCarte.Append(codeTarif);
-        //            strBNomCarte.Append(apprint.CodeCarte);
-        //            var nomCarte = strBNomCarte.ToString();
-
-        //            worksheet.Cells[row, 1].Value = apprint.NumCarte; // numero de la carte
-        //            worksheet.Cells[row, 2].Value = dateValidite; // date de validite de la carte
-        //            worksheet.Cells[row, 3].Value = numeroCompte; // numero de compte du client
-        //            worksheet.Cells[row, 4].Value = "";
-        //            worksheet.Cells[row, 5].Value = dateCreationCarte;
-        //            worksheet.Cells[row, 6].Value = codeTarif;
-        //            worksheet.Cells[row, 7].Value = apprint.CodeCarte;
-
-        //            //_logger.LogInformation($"CodeCarte : {apprint.CodeCarte} ");
-        //            //_logger.LogInformation($"NumCarte : {apprint.NumCarte} ");
-        //            //_logger.LogInformation($"dateValidite : {dateValidite} ");
-        //            //_logger.LogInformation($"numeroCompte : {numeroCompte} ");
-        //            //_logger.LogInformation($"dateCreationCarte : {dateCreationCarte} ");
-        //            //_logger.LogInformation($"codeTarif : {codeTarif} ");
-        //            //_logger.LogInformation($"codeTarifNom : {codeTarifNom["C3016"]} ");
-        //            // Parse dateValidite safely
-
-        //            // insertion du nom de la carte...
-
-        //            switch (nomCarte)
-        //            {
-        //                case "CL012":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["CL012"]; // nom code-tarif/code-carte
-        //                    break;
-        //                case "CL014":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["CL014"];
-        //                    break;
-        //                case "CL015":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["CL015"];
-        //                    break;
-        //                case "CL006":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["CL006"];
-        //                    break;
-        //                case "CL007":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["CL007"];
-        //                    break;
-
-        //                case "PR011":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR011"];
-        //                    break;
-        //                case "PR012":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR012"];
-        //                    break;
-        //                case "PR013":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR013"];
-        //                    break;
-        //                case "PR016":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR016"];
-        //                    break;
-        //                case "PR005":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR005"];
-        //                    break;
-        //                case "PR006":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR006"];
-        //                    break;
-        //                case "PR007":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["PR007"];
-        //                    break;
-
-        //                case "C3011":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["C3011"];
-        //                    break;
-        //                case "C3012":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["C3012"];
-        //                    break;
-        //                case "C3016":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["C3016"];
-        //                    break;
-        //                case "C3006":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["C3006"];
-        //                    break;
-        //                case "C3007":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["C3007"];
-        //                    break;
-
-        //                case "EX011":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX011"];
-        //                    break;
-        //                case "EX012":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX012"];
-        //                    break;
-        //                case "EX013":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX013"];
-        //                    break;
-        //                case "EX016":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX016"];
-        //                    break;
-        //                case "EX005":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX005"];
-        //                    break;
-        //                case "EX006":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX006"];
-        //                    break;
-        //                case "EX007":
-        //                    worksheet.Cells[row, 8].Value = codeTarifNom["EX007"];
-        //                    break;
-
-        //                default:
-        //                    worksheet.Cells[row, 8].Value = "Nom inconnu";
-        //                    break;
-        //            }
-
-        //            // insertion du code de la carte
-        //            switch (apprint.CodeCarte)
-        //            {
-        //                case "007":
-        //                    worksheet.Cells[row, 9].Value = cartePrix["007"]; // cotisations mensuells carte
-        //                    worksheet.Cells[row, 11].Value = cartePrix["007"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 12].Value = cartePrix["007"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 13].Value = cartePrix["007"] / cartePrix["007"];
-        //                    worksheet.Cells[row, 14].Value = cartePrix["007"];
-        //                    break;
-        //                case "012":
-        //                    worksheet.Cells[row, 9].Value = cartePrix["012"];
-        //                    worksheet.Cells[row, 11].Value = cartePrix["012"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 12].Value = cartePrix["012"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 13].Value = cartePrix["012"] / cartePrix["012"];
-        //                    worksheet.Cells[row, 14].Value = cartePrix["012"];
-        //                    break;
-        //                case "006":
-        //                    worksheet.Cells[row, 9].Value = cartePrix["006"];
-        //                    worksheet.Cells[row, 11].Value = cartePrix["006"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 12].Value = cartePrix["006"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 13].Value = cartePrix["006"] / cartePrix["006"];
-        //                    worksheet.Cells[row, 14].Value = cartePrix["006"];
-        //                    break;
-        //                case "011":
-        //                    worksheet.Cells[row, 9].Value = cartePrix["011"];
-        //                    worksheet.Cells[row, 11].Value = cartePrix["011"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 12].Value = cartePrix["011"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 13].Value = cartePrix["011"] / cartePrix["011"];
-        //                    worksheet.Cells[row, 14].Value = cartePrix["011"];
-        //                    break;
-        //                case "016":
-        //                    worksheet.Cells[row, 9].Value = cartePrix["016"];
-        //                    worksheet.Cells[row, 11].Value = cartePrix["016"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 12].Value = cartePrix["016"] * nbrMoisPasse;
-        //                    worksheet.Cells[row, 13].Value = cartePrix["016"] / cartePrix["016"];
-        //                    worksheet.Cells[row, 14].Value = cartePrix["016"];
-        //                    break;
-        //                default:
-        //                    worksheet.Cells[row, 9].Value = "Code inconnu";
-        //                    worksheet.Cells[row, 9].Value = cartePrix["Code inconnu"];
-        //                    worksheet.Cells[row, 11].Value = cartePrix["Code inconnu"];
-        //                    worksheet.Cells[row, 12].Value = cartePrix["Code inconnu"];
-        //                    worksheet.Cells[row, 14].Value = cartePrix["Code inconnu"];
-        //                    break;
-        //            }
-
-        //            if (dateDersouPackEchus.ContainsKey(numeroCompte))
-        //            {
-
-        //                // Get the max date between dateValidite and maxDsouf
-        //                DateTime maxDate = (DateTime.Parse(dateCreationCarte) > dateDersouPackEchus[numeroCompte].maxDsouf)
-        //                    ? DateTime.Parse(dateCreationCarte)
-        //                    : dateDersouPackEchus[numeroCompte].maxDsouf;
-
-        //                worksheet.Cells[row, 10].Value = maxDate;  // MaX (date creation carte, dfsou package)
-        //                _logger.LogInformation($"maxdate : {maxDate}");
-        //            }
-
-        //            // Logging
-        //            _logger.LogInformation($"date derniere : {(dateDersouPackEchus.ContainsKey(numeroCompte) ? dateDersouPackEchus[numeroCompte].maxDsouf : (DateTime?)null)}");
-        //            _logger.LogInformation($"date fin souscription : {(dateDersouPackEchus.ContainsKey(numeroCompte) ? dateDersouPackEchus[numeroCompte].maxDsouf : (DateTime?)null)}");
-
-        //            worksheet.Cells[row, 15].Value = apprint.NomPropCarte; // nom proprietaire carte
-        //            worksheet.Cells[row, 16].Value = estActif;
-        //            worksheet.Cells[row, 17].Value = packActifs.ContainsKey(numeroCompte) ? packActifs[numeroCompte].cpack + " => " + packActifs[numeroCompte].lib : "#N/A";
-        //            worksheet.Cells[row, 18].Value = estActif == "N" ? "Actif" : "#N/A";
-        //            worksheet.Cells[row, 19].Value = "#N/A";
-        //            //
-        //            worksheet.Cells[row, 20].Value = dateDersouPackEchus.ContainsKey(numeroCompte)
-        //                ? dateDersouPackEchus[numeroCompte].maxDsouf
-        //                : (DateTime?)null; // or another default value
-        //            worksheet.Cells[row, 21].Value = "#N/A";
-        //            worksheet.Cells[row, 22].Value = "#N/A";
-        //            worksheet.Cells[row, 23].Value = "#N/A";
-        //            worksheet.Cells[row, 24].Value = "#N/A";
-        //            // ussage du dsou si le code se trouve dans le dictionnaire
-        //            worksheet.Cells[row, 25].Value = dateDersouPackEchus.ContainsKey(numeroCompte)
-        //                ? dateDersouPackEchus[numeroCompte].maxDsouf
-        //                : (DateTime?)null; // or another default value
-        //            row++;
-
-        //        }
-
-        //        worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
-
-        //        worksheet.Cells[1, 1, 1, 25].Style.Font.Bold = true;
-        //        var headerRange = worksheet.Cells[1, 1, 1, 25];
-        //        headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid; // Style de remplissage
-        //        headerRange.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.YellowGreen); // Couleur de fond CodeBrix.Imaging.Color.LightBlue
-        //        headerRange.Style.Font.Bold = true; // Mettre en gras
-        //        headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Centrer le texte
-
-        //        return package.GetAsByteArray();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.Error.WriteLine($"Erreur lors de la lecture du fichier : {ex.Message}");
-        //        throw new NotImplementedException();
-        //    }
-        //}
-
  
         public async Task<IEnumerable<TypeMag>> GetAllTypeMagsAsync()
         {

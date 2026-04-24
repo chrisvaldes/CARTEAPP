@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "UNRdWzhag9o=",
+  "dgSpecHash": "gYOXIUiXqQ8=",
   "success": true,
   "projectFilePath": "C:\\Users\\Admin_dev\\source\\repos\\SYSGES-MAGs\\SYSGES-MAGs\\SYSGES-MAGs.csproj",
   "expectedPackageFiles": [
@@ -48,6 +48,7 @@
     "C:\\Users\\Admin_dev\\.nuget\\packages\\system.composition.runtime\\9.0.0\\system.composition.runtime.9.0.0.nupkg.sha512",
     "C:\\Users\\Admin_dev\\.nuget\\packages\\system.composition.typedparts\\9.0.0\\system.composition.typedparts.9.0.0.nupkg.sha512",
     "C:\\Users\\Admin_dev\\.nuget\\packages\\system.configuration.configurationmanager\\9.0.0\\system.configuration.configurationmanager.9.0.0.nupkg.sha512",
+    "C:\\Users\\Admin_dev\\.nuget\\packages\\system.directoryservices\\10.0.7\\system.directoryservices.10.0.7.nupkg.sha512",
     "C:\\Users\\Admin_dev\\.nuget\\packages\\system.formats.nrbf\\9.0.0\\system.formats.nrbf.9.0.0.nupkg.sha512",
     "C:\\Users\\Admin_dev\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.0.1\\system.identitymodel.tokens.jwt.8.0.1.nupkg.sha512",
     "C:\\Users\\Admin_dev\\.nuget\\packages\\system.reflection.metadataloadcontext\\7.0.0\\system.reflection.metadataloadcontext.7.0.0.nupkg.sha512",

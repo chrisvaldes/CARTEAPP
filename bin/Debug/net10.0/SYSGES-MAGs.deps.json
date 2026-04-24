@@ -15,7 +15,8 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.0",
           "Microsoft.EntityFrameworkCore": "10.0.0",
           "Microsoft.EntityFrameworkCore.Design": "10.0.0",
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0"
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
+          "System.DirectoryServices": "10.0.7"
         },
         "runtime": {
           "SYSGES-MAGs.dll": {}
@@ -672,6 +673,22 @@
           }
         }
       },
+      "System.DirectoryServices/10.0.7": {
+        "runtime": {
+          "lib/net10.0/System.DirectoryServices.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.726.21808"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net10.0/System.DirectoryServices.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.726.21808"
+          }
+        }
+      },
       "System.Formats.Nrbf/9.0.0": {
         "runtime": {
           "lib/net9.0/System.Formats.Nrbf.dll": {
@@ -1033,6 +1050,13 @@
       "sha512": "sha512-PdkuMrwDhXoKFo/JxISIi9E8L+QGn9Iquj2OKDWHB6Y/HnUOuBouF7uS3R4Hw3FoNmwwMo6hWgazQdyHIIs27A==",
       "path": "system.configuration.configurationmanager/9.0.0",
       "hashPath": "system.configuration.configurationmanager.9.0.0.nupkg.sha512"
+    },
+    "System.DirectoryServices/10.0.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-CSYpGw8Q1NVxl2xwH4Y3Fw7ZyUUf/m/9ZWNU4WAFfYqvguxPP21bEJgfGwZWKqwg3awuOLlM9uel5MP2Tc8lRg==",
+      "path": "system.directoryservices/10.0.7",
+      "hashPath": "system.directoryservices.10.0.7.nupkg.sha512"
     },
     "System.Formats.Nrbf/9.0.0": {
       "type": "package",

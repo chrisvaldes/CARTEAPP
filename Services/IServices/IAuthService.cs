@@ -7,6 +7,7 @@ namespace SYSGES_MAGs.Services.IServices
     public interface IAuthService
     {
         Task<ServiceResult<LoginDto>> LoginAsync(LoginDto loginDto);
+        Task<ServiceResult<LoginDto>> LoginWithLdapAsync(LoginDto loginDto);
         Task<Profil> GetByUseragAsync(string userag);
     }
 }

@@ -7,6 +7,7 @@ namespace SYSGES_MAGs.Models
         public Guid Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public bool Statut { get; set; }
 
         public static implicit operator User?(ClaimsPrincipal? v)
         {

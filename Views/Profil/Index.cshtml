@@ -14,8 +14,10 @@
         </nav>
     </div>
      
-
 </div>
+ 
+
+
 <div class="row d-flex align-items-center justify-content-center">
     <div class="col-xxl-9">
         <div class="card custom-card">
@@ -27,85 +29,78 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover text-nowrap table-bordered">
+                    <table id="example" class="display">
                         <thead>
                             <tr>
-                                <th scope="col">P.No</th> 
+                                <th scope="col">P.No</th>
                                 <th scope="col">AG Utilisateur</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Type Profil</th>
-                                <th scope="col">Status</th> 
+                                <th scope="col">Status</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @if (!Model.Any())
                             {
                                 <tr class="text-center text-danger">
-                                    <td colspan="7">Aucun profil utilisateur enregistré!!!</td>
+                                    <td colspan="6">Aucun profil utilisateur enregistré!!!</td>
                                 </tr>
                             }
                             else
                             {
-                                                            
-                            @foreach(var profil in Model)
-                            {
-                                <tr>
-                                    <td> @index </td> 
-                                    <td>@profil.Userag</td>
-                                    <td>
-                                        @profil.Email
-                                    </td>
+                                foreach (var profil in Model)
+                                {
+                                    <tr>
+                                        <td>@index</td>
+                                        <td>@profil.Userag</td>
+                                        <td>@profil.Email</td>
 
-                                    <td> <span class="badge bg-primary-transparent">@profil.TypeProfile</span> </td>
-                                    <td> <span class="badge bg-warning-transparent">@profil.Status</span> </td>
-                                    <td>
-                                        <div class="btn-list">
-                                            <a class=" open-modal-btn btn  btn-icon rounded-pill btn-sm btn-secondary-light openUpdateProfileModalBtn"
-                                               aria-label="anchor"  data-id="@profil.Id"
-                                               href="javascript:void(0);"   data-bs-toggle="tooltip" data-bs-placement="top"
-                                               data-bs-title="Edit">
-                                                <i class="fa-solid fa-pencil"></i>
-                                            </a>
-                                            <a aria-label="anchor" id="alertParameter"
-                                               href="javascript:void(0);" onclick="showDeleteProfile('@profil.Id')" data-bs-toggle="tooltip" data-bs-placement="top"
-                                               data-bs-title="Delete"
-                                               class="btn  btn-icon rounded-pill btn-sm  btn-danger-light  open-modal-btn">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                index++;
-                            }
+                                        <td>
+                                            <span class="badge bg-primary-transparent">
+                                                @profil.TypeProfile
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-warning-transparent">
+                                                @profil.Status
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <div class="btn-list">
+                                                <a class="btn btn-icon rounded-pill btn-sm btn-secondary-light openUpdateProfileModalBtn"
+                                                   data-id="@profil.Id"
+                                                   href="javascript:void(0);"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="Edit">
+                                                    <i class="fa-solid fa-pencil"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0);"
+                                                   onclick="showDeleteProfile('@profil.Id')"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="Delete"
+                                                   class="btn btn-icon rounded-pill btn-sm btn-danger-light">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    index++;
+                                }
                             }
                         </tbody>
                     </table>
+
                 </div>
             </div>
-            <div class="card-footer">
-                <div class="d-flex align-items-center">
-                    <div>  </div>
-                    <div class="ms-auto">
-                        <nav aria-label="Page navigation" class="pagination-style-4">
-                            <ul class="pagination mb-0">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="javascript:void(0);">
-                                        Prev
-                                    </a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
-                                <li class="page-item">
-                                    <a class="page-link text-primary" href="javascript:void(0);">
-                                        next
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+             
         </div>
     </div>
 

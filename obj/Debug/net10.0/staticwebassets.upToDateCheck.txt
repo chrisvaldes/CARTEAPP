@@ -112,6 +112,7 @@ wwwroot\css\styles.css
 wwwroot\css\site.css
 wwwroot\libs\node-waves\wave.min.css
 wwwroot\css\icons.css
+wwwroot\assets\js\datatables.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\jquery\dist\jquery.min.map
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\images\brand-logos\télécharger.ico
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\libs\node-waves\wave.min.css
@@ -216,3 +217,4 @@ C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\jquery\LICEN
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\css\styles.css
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\jquery-validation\dist\jquery.validate.js
 C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\lib\jquery-validation\dist\additional-methods.min.js
+C:\Users\Admin_dev\source\repos\SYSGES-MAGs\SYSGES-MAGs\wwwroot\assets\js\datatables.js

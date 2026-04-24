@@ -6,17 +6,40 @@ using SYSGES_MAGs.Data;
 using SYSGES_MAGs.Models;
 using SYSGES_MAGs.Models.ModelsDto;
 using SYSGES_MAGs.Services.IServices;
+using System.DirectoryServices;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.Reflection.PortableExecutable;
+using System.Security.Claims; 
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SYSGES_MAGs.Services
 {
-    public class AuthService (ApplicationDbContext _context, IConfiguration _config, ILogger<AuthService> _logger, IProfileService _profilService) : IAuthService
+    public class AuthService : IAuthService
     {
+        private SignInManager<User> _signInManager;
+        private UserManager<User> _userManager;
+        private ApplicationDbContext _context;
+        private IConfiguration _config;
+        private ILogger<AuthService> _logger;
+        private IProfileService _profilService;
+        
+        public AuthService(ApplicationDbContext context, IConfiguration config, ILogger<AuthService> logger, IProfileService profilService, SignInManager<User> signInManager, UserManager<User> userManager)
+        {
+            _signInManager = signInManager;
+            _context = context;
+            _config = config;
+            _logger = logger;
+            _profilService = profilService;
+            _userManager = userManager;
+        }
 
 
-        [HttpPost]
+        public async Task SignInUserAsync(User user)
+        {
+            await _signInManager.SignInAsync(user, isPersistent: false);
+        }
+
         public async Task<ServiceResult<LoginDto>> LoginAsync(LoginDto loginDto)
         {
 
@@ -57,6 +80,9 @@ namespace SYSGES_MAGs.Services
                 Token = await GenerateToken(user)
             };
         }
+
+
+        
 
 
         public bool VerifyPassword(User user, string passwordHasher, string enteredPassword)
@@ -102,6 +128,173 @@ namespace SYSGES_MAGs.Services
         public Task<Profil> GetByUseragAsync(string userag)
         {
             return null;
+        }
+
+        public async Task<ServiceResult<LoginDto>> AuthenticateAsync(string username, string password)
+        {
+            const string ErrorMessage = "Login ou mot de passe incorrect";
+            const string DisabledMessage = "Votre compte a été désactivé.";
+
+            try
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null)
+                {
+                    _logger.LogInformation($"L'utilisateur {username} n'existe pas dans la BD.");
+                    return new ServiceResult<LoginDto>
+                    {
+                        Success = false,
+                        Message = ErrorMessage,
+                    };
+                }
+
+                if (!user.Statut)
+                {
+                    _logger.LogInformation($"L'utilisateur {username} a été désactivé.");
+                    return new ServiceResult<LoginDto>
+                    {
+                        Success = false,
+                        Message = DisabledMessage,
+                    };
+                }
+
+                //var authMode = await _settingsService.GetAuthModeAsync();
+                //_logger.LogInformation($"Mode de connexion paramétré : {authMode}");
+
+                //return authMode == Setting.Auth_AD_Key
+                //    ? await AuthenticateLdapAsync(user, username, password)
+                //    : await AuthenticateIdentityAsync(user, password);
+                return await AuthenticateLdapAsync(user, username, password);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Authentication failed for user {Username}", username);
+                return new ServiceResult<LoginDto>
+                {
+                    Success = false,
+                    Message = ErrorMessage, 
+                };
+            }
+        }
+
+        private async Task<ServiceResult<LoginDto>> AuthenticateLdapAsync(User user, string username, string password)
+        {
+            // On récupère les paramètres de connexion à l'annuaire
+            var ldapSettings = new LDAPSetting
+            {
+                LDAPDirectory="",
+                LDAPDomain="",
+                LDAPEmail="",
+                LDAPPassword="",
+                LDAPMatricule=""                
+            };
+            if (ldapSettings == null)
+            {
+                return new ServiceResult<LoginDto>
+                {
+                    Success = false,
+                    Message = "Login ou mot de passe incorrecte !!",
+                };
+            }
+            _logger.LogInformation($"Paramètre de connexion à l'annuaire : {ldapSettings.LDAPDomain} - {ldapSettings.LDAPMatricule}");
+
+            try
+            {
+                // Vérification des paramètres de connexion à l'annuaire
+                if (await ValidateLdapCredentialsAsync(ldapSettings, username, password))
+                {
+                    _logger.LogInformation("Connexion à l'annuaire réussie");
+                    await SignInUserAsync(user);
+                    return new ServiceResult<LoginDto>
+                    {
+                        Success = true,
+                        Message = "Connexion réussi !!",
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Authentification LDAP échoué pour l'utilisateur {Username}", username);
+            }
+
+            return new ServiceResult<LoginDto> { Success = false, Message = "Login ou mot de passe incorrect" };
+        }
+
+
+
+
+        //private async Task<LDAPSetting> GetLdapSettingsAsync()
+        //{
+        //    var setting = await _context.Settings
+        //        .FirstOrDefaultAsync(s => s.Code == LDAPSetting.LDAPCode);
+
+        //    return setting == null ? null
+        //        : Newtonsoft.Json.JsonConvert.DeserializeObject<LDAPSetting>(setting.Value);
+        //}
+
+
+
+        /// <summary>
+        /// Permet de vérifier les paramètres de connexion dans l'annuaire 
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        private async Task<bool> ValidateLdapCredentialsAsync(LDAPSetting settings, string username, string password)
+        {
+            var ldapPath = settings.LDAPDirectory + settings.LDAPDomain;
+            var adminLogin = settings.ElementConnectLDAP == "2"
+                ? settings.LDAPMatricule
+                : settings.LDAPEmail;
+
+            // First validate admin connection
+            using (var userEntry = new System.DirectoryServices.DirectoryEntry(ldapPath, username, password))
+            {
+                try
+                {
+                    // Verify admin connection
+                    _ = userEntry.NativeObject;
+
+                    // Search for user
+                    using (var searcher = new DirectorySearcher(userEntry))
+                    {
+                        searcher.Filter = $"(sAMAccountName={username})";
+                        var result = searcher.FindOne();
+
+                        if (result == null) return false;
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, " LDAP connexion ldap ");
+                    return false;
+                }
+            }
+        }
+
+
+
+
+        public async Task<ServiceResult<LoginDto>> LoginWithLdapAsync(LoginDto loginDto)
+        {
+           if(string.IsNullOrEmpty(loginDto.Username) || string.IsNullOrEmpty(loginDto.Password))
+            {
+                return new ServiceResult<LoginDto>
+                {
+                    Success = false,
+                    Message = "Username ou mot de passe vide !!",
+                };
+            }
+           
+            return new ServiceResult<LoginDto>
+            {
+                Success = false,
+                Message = "Aucun utilisateur trouvé !!!",
+            };
         }
     }
 }
